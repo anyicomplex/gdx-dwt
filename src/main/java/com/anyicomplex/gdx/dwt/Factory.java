@@ -1,0 +1,11 @@
+package com.anyicomplex.gdx.dwt;
+
+import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
+import com.anyicomplex.gdx.dwt.factory.Shell;
+import com.badlogic.gdx.ApplicationListener;
+
+public interface Factory {
+
+    Shell frame(ApplicationListener listener, ShellConfiguration config);
+
+}

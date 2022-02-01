@@ -1,0 +1,45 @@
+allprojects {
+    apply plugin: "java-library"
+
+    ext {
+        gdxVersion = '1.10.0'
+        gdxControllersVersion = '2.2.1'
+        graalvmVersion = '22.0.0'
+    }
+
+    group 'io.github.anyicomplex'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+}
+
+version gdxVersion
+
+dependencies {
+    implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+}
+
+subprojects {
+    dependencies {
+        implementation project(":")
+    }
+}
+
+project(":backends:lwjgl3") {
+    version gdxVersion
+    dependencies {
+        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+        testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    }
+}

@@ -1,0 +1,4 @@
+/.gradle/
+/build/
+/backends/lwjgl3/build/
+/.idea/
