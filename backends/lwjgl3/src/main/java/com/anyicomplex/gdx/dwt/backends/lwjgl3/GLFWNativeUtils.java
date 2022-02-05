@@ -15,8 +15,10 @@ public class GLFWNativeUtils {
             SetWindowLongPtr(hwnd, GWL_STYLE, GetWindowLongPtr(hwnd, GWL_STYLE) & ~WS_MAXIMIZEBOX);
         }
         else if (SharedLibraryLoader.isLinux) {
-            long X11Display = GLFWNativeX11.glfwGetX11Display();
-            long X11Window = GLFWNativeX11.glfwGetX11Window(window);
+            long display = GLFWNativeX11.glfwGetX11Display();
+            long w = GLFWNativeX11.glfwGetX11Window(window);
+        }
+        else if (SharedLibraryLoader.isMac) {
 
         }
     }
@@ -25,6 +27,12 @@ public class GLFWNativeUtils {
         if (SharedLibraryLoader.isWindows) {
             long hwnd = GLFWNativeWin32.glfwGetWin32Window(window);
             SetWindowLongPtr(hwnd, GWL_STYLE, GetWindowLongPtr(hwnd, GWL_STYLE) & ~WS_MINIMIZEBOX);
+        }
+        else if (SharedLibraryLoader.isLinux) {
+            long display = GLFWNativeX11.glfwGetX11Display();
+            long w = GLFWNativeX11.glfwGetX11Window(window);
+        }
+        else if (SharedLibraryLoader.isMac) {
         }
     }
 

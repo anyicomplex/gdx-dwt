@@ -1,38 +1,54 @@
 allprojects {
-    apply plugin: "java-library"
+    if (project.name.contains("native")) {
+        apply plugin: "cpp-library"
 
-    ext {
-        gdxVersion = '1.10.0'
-        gdxControllersVersion = '2.2.1'
-        graalvmVersion = '22.0.0'
+        library {
+            targetMachines = [
+                    machines.linux.x86_64
+            ]
+        }
+
     }
+    else {
+        apply plugin: "java-library"
 
-    group 'io.github.anyicomplex'
+        ext {
+            gdxVersion = '1.10.0'
+            gdxControllersVersion = '2.2.1'
+            graalvmVersion = '22.0.0'
+        }
 
-    repositories {
-        mavenCentral()
-    }
+        group 'io.github.anyicomplex'
 
-    dependencies {
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-    }
+        repositories {
+            mavenCentral()
+        }
 
-    test {
-        useJUnitPlatform()
+        dependencies {
+            testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+            testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+        }
+
+        test {
+            useJUnitPlatform()
+        }
     }
 
 }
 
-version gdxVersion
+if (!project.name.contains("native")) {
+    version gdxVersion
 
-dependencies {
-    implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+    dependencies {
+        implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+    }
 }
 
 subprojects {
-    dependencies {
-        implementation project(":")
+    if (!project.name.contains("native")) {
+        dependencies {
+            implementation project(":")
+        }
     }
 }
 

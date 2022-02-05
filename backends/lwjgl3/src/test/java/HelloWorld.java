@@ -12,13 +12,15 @@ public class HelloWorld {
             @Override
             public void render() {
                 super.render();
+                ShellConfiguration configuration = new ShellConfiguration();
+                configuration.windowHideMaximizeButton = true;
                 if(Gdx.input.justTouched()) {
                     Gdwt.factory.frame(new ApplicationAdapter() {
                         @Override
                         public void create() {
                             super.create();
                         }
-                    }, new ShellConfiguration());
+                    }, configuration);
                 }
             }
         }, new Lwjgl3ApplicationConfiguration());
