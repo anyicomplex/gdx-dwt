@@ -1,6 +1,8 @@
 package com.anyicomplex.gdx.dwt.backends.lwjgl3;
 
 import com.anyicomplex.gdx.dwt.Factory;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Shell;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.glfw.GLFWNativeUtils;
 import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
 import com.anyicomplex.gdx.dwt.factory.Shell;
 import com.badlogic.gdx.ApplicationListener;

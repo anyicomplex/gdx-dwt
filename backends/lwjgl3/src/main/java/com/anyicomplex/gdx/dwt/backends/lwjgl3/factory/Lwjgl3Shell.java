@@ -1,4 +1,4 @@
-package com.anyicomplex.gdx.dwt.backends.lwjgl3;
+package com.anyicomplex.gdx.dwt.backends.lwjgl3.factory;
 
 import com.anyicomplex.gdx.dwt.factory.Shell;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;

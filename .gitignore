@@ -1,4 +1,7 @@
 /.gradle/
+/.idea/
+/.vscode/
 /build/
 /backends/lwjgl3/build/
-/.idea/
+/backends/lwjgl3-natives/build/
+/backends/build/

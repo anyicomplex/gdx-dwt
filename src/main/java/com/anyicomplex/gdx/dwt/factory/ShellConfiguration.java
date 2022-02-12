@@ -51,7 +51,7 @@ public class ShellConfiguration {
     public int idleFPS = 60;
     public int foregroundFPS = 0;
 
-    public String preferencesDirectory = Gdwt.toolkit.prefsDir();
+    public String preferencesDirectory = Gdwt.toolkit.prefsDir(null, null);
     public Files.FileType preferencesFileType = Files.FileType.Absolute;
 
     public HdpiMode hdpiMode = HdpiMode.Logical;

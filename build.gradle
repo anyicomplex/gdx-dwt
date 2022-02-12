@@ -1,29 +1,45 @@
+import org.gradle.internal.jvm.Jvm
+
 allprojects {
-    if (project.name.contains("native")) {
+
+    def os = System.getProperty("os.name").toLowerCase()
+
+    if (project.name.contains('natives')) {
         apply plugin: "cpp-library"
 
         library {
+            linkage = [Linkage.SHARED]
             targetMachines = [
-                    machines.linux.x86_64
+                    machines.windows.x86, machines.windows.x86_64,
+                    machines.linux.x86_64,
+                    machines.macOS.x86_64
             ]
+            binaries.configureEach(CppSharedLibrary) {
+                if (os.contains('win')) {
+                    compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include")
+                    compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include/win32")
+                    linkTask.get().linkerArgs.add("Shlwapi.lib", "Advapi32.lib")
+                } else if (os.contains('nux')) {
+                    compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include")
+                    compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include/linux")
+                    compileTask.get().compilerArgs.add('-D_FILE_OFFSET_BITS=64')
+                    linkTask.get().linkerArgs.add("-lfontconfig")
+                } else if (os.contains('mac')) {
+                    compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include")
+                    compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include/darwin")
+                    compileTask.get().compilerArgs.add('-mmacosx-version-min=10.4')
+                    linkTask.get().linkerArgs.add('-mmacosx-version-min=10.4')
+                }
+            }
         }
 
     }
     else {
         apply plugin: "java-library"
 
-        ext {
-            gdxVersion = '1.10.0'
-            gdxControllersVersion = '2.2.1'
-            graalvmVersion = '22.0.0'
-        }
-
-        group 'io.github.anyicomplex'
-
         repositories {
             mavenCentral()
         }
-
         dependencies {
             testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
             testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
@@ -34,18 +50,22 @@ allprojects {
         }
     }
 
-}
-
-if (!project.name.contains("native")) {
+    ext {
+        gdxVersion = '1.10.0'
+        gdxControllersVersion = '2.2.1'
+        graalvmVersion = '22.0.0'
+    }
+    group 'io.github.anyicomplex'
     version gdxVersion
 
-    dependencies {
-        implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
-    }
+}
+
+dependencies {
+    implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
 }
 
 subprojects {
-    if (!project.name.contains("native")) {
+    if (!project.name.contains('natives')) {
         dependencies {
             implementation project(":")
         }
@@ -53,9 +73,8 @@ subprojects {
 }
 
 project(":backends:lwjgl3") {
-    version gdxVersion
     dependencies {
         implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
-        testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 }

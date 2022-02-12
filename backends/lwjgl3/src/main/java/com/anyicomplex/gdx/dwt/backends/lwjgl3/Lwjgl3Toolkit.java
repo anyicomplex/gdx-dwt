@@ -3,16 +3,15 @@ package com.anyicomplex.gdx.dwt.backends.lwjgl3;
 import com.anyicomplex.gdx.dwt.Gdwt;
 import com.anyicomplex.gdx.dwt.Toolkit;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.linux.LinuxNatives;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.PathHelper;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.SystemInfo;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.SystemPath;
+import com.anyicomplex.gdx.dwt.toolkit.Font;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class Lwjgl3Toolkit implements Toolkit {
 
@@ -22,26 +21,52 @@ public class Lwjgl3Toolkit implements Toolkit {
     }
 
     public void loop(ApplicationListener listener, Lwjgl3ApplicationConfiguration config) {
+        SharedLibraryLoader.isLinux = SystemInfo.isUnixLike() && !SystemInfo.isMac();
         new Lwjgl3Application(listener, config);
     }
 
     @Override
-    public String prefsDir() {
-        return System.getProperty("user.home") + ".prefs";
+    public String prefsDir(String companyName, String appName) {
+        return PathHelper.buildAppConfigPath(companyName, appName);
     }
 
     @Override
-    public FileHandle defaultRegularFont() {
+    public String dataDir(String companyName, String appName) {
+        return PathHelper.buildAppDataPath(companyName, appName);
+    }
+
+    @Override
+    public String cacheDir(String companyName, String appName) {
+        return PathHelper.buildAppCachePath(companyName, appName);
+    }
+
+    @Override
+    public String tmpDir() {
+        return SystemPath.temporary();
+    }
+
+    @Override
+    public Font defaultFont() {
         return null;
     }
 
     @Override
-    public FileHandle defaultMonoFont() {
+    public Font defaultMonoFont() {
         return null;
     }
 
     @Override
-    public Array<FileHandle> systemFonts() {
+    public Font[] systemFonts() {
+        switch (SystemInfo.getSystemType()) {
+            case WINDOWS:
+                break;
+            case LINUX:
+            case SOLARIS:
+            case AIX:
+                return LinuxNatives.systemFonts();
+            case MAC:
+                break;
+        }
         return null;
     }
 
@@ -57,20 +82,6 @@ public class Lwjgl3Toolkit implements Toolkit {
 
     @Override
     public boolean openURL(String url) {
-        if (SharedLibraryLoader.isWindows) {
-
-        }
-        else if (SharedLibraryLoader.isLinux) {
-            try {
-                return LinuxNatives.openURL(new URL(url).toString());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-        else if (SharedLibraryLoader.isMac) {
-
-        }
         return false;
     }
 

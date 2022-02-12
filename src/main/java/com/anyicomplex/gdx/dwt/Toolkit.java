@@ -1,17 +1,22 @@
 package com.anyicomplex.gdx.dwt;
 
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.Array;
+import com.anyicomplex.gdx.dwt.toolkit.Font;
 
 public interface Toolkit {
 
-    String prefsDir();
+    String prefsDir(String companyName, String appName);
 
-    FileHandle defaultRegularFont();
+    String dataDir(String companyName, String appName);
 
-    FileHandle defaultMonoFont();
+    String cacheDir(String companyName, String appName);
 
-    Array<FileHandle> systemFonts();
+    String tmpDir();
+
+    Font defaultFont();
+
+    Font defaultMonoFont();
+
+    Font[] systemFonts();
 
     void fullscreen();
 
