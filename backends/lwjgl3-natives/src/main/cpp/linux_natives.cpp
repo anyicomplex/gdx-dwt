@@ -3,11 +3,7 @@
 #include "constants.h"
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
-#include <iostream>
-#include <X11/Xutil.h>
 #include "MwmUtil.h"
-
-using namespace std;
 
 #ifdef __cplusplus
 extern "C" {
