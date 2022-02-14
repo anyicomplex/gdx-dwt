@@ -1,12 +1,10 @@
 import org.gradle.internal.jvm.Jvm
 
 allprojects {
-
     def os = System.getProperty("os.name").toLowerCase()
 
     if (project.name.contains('natives')) {
         apply plugin: "cpp-library"
-
         library {
             linkage = [Linkage.SHARED]
             targetMachines = [
@@ -20,10 +18,56 @@ allprojects {
                     compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include/win32")
                     linkTask.get().linkerArgs.add("Shlwapi.lib", "Advapi32.lib")
                 } else if (os.contains('nux')) {
+                    // JVM
                     compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include")
                     compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include/linux")
+                    /*
+                    // GTK-3.0
+                    compileTask.get().compilerArgs.add("-I/usr/include/gtk-3.0")
+                    compileTask.get().compilerArgs.add("-I/usr/include/pango-1.0")
+                    compileTask.get().compilerArgs.add("-I/usr/include/glib-2.0")
+                    compileTask.get().compilerArgs.add("-I/usr/lib64/glib-2.0/include")
+                    compileTask.get().compilerArgs.add("-I/usr/include/sysprof-4")
+                    compileTask.get().compilerArgs.add("-I/usr/include/harfbuzz")
+                    compileTask.get().compilerArgs.add("-I/usr/include/freetype2")
+                    compileTask.get().compilerArgs.add("-I/usr/include/libpng16")
+                    compileTask.get().compilerArgs.add("-I/usr/include/libmount")
+                    compileTask.get().compilerArgs.add("-I/usr/include/blkid")
+                    compileTask.get().compilerArgs.add("-I/usr/include/fribidi")
+                    compileTask.get().compilerArgs.add("-I/usr/include/libxml2")
+                    compileTask.get().compilerArgs.add("-I/usr/include/cairo")
+                    compileTask.get().compilerArgs.add("-I/usr/include/pixman-1")
+                    compileTask.get().compilerArgs.add("-I/usr/include/gdk-pixbuf-2.0")
+                    compileTask.get().compilerArgs.add("-I/usr/include/gio-unix-2.0")
+                    compileTask.get().compilerArgs.add("-I/usr/include/cloudproviders")
+                    compileTask.get().compilerArgs.add("-I/usr/include/atk-1.0")
+                    compileTask.get().compilerArgs.add("-I/usr/include/at-spi2-atk/2.0")
+                    compileTask.get().compilerArgs.add("-I/usr/include/dbus-1.0")
+                    compileTask.get().compilerArgs.add("-I/usr/lib64/dbus-1.0/include")
+                    compileTask.get().compilerArgs.add("-I/usr/include/at-spi-2.0")
+                    // pthread
+                    compileTask.get().compilerArgs.add("-pthread")
+                    */
+                    // 64-bit
                     compileTask.get().compilerArgs.add('-D_FILE_OFFSET_BITS=64')
+                    // libs
                     linkTask.get().linkerArgs.add("-lfontconfig")
+                    linkTask.get().linkerArgs.add("-lX11")
+                    /*
+                    linkTask.get().linkerArgs.add("-lgtk-3")
+                    linkTask.get().linkerArgs.add("-lgdk-3")
+                    linkTask.get().linkerArgs.add("-lz")
+                    linkTask.get().linkerArgs.add("-lpangocairo-1.0")
+                    linkTask.get().linkerArgs.add("-lpango-1.0")
+                    linkTask.get().linkerArgs.add("-lharfbuzz")
+                    linkTask.get().linkerArgs.add("-latk-1.0")
+                    linkTask.get().linkerArgs.add("-lcairo-gobject")
+                    linkTask.get().linkerArgs.add("-lcairo")
+                    linkTask.get().linkerArgs.add("-lgdk_pixbuf-2.0")
+                    linkTask.get().linkerArgs.add("-lgio-2.0")
+                    linkTask.get().linkerArgs.add("-lgobject-2.0")
+                    linkTask.get().linkerArgs.add("-lglib-2.0")
+                     */
                 } else if (os.contains('mac')) {
                     compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include")
                     compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include/darwin")
@@ -32,7 +76,6 @@ allprojects {
                 }
             }
         }
-
     }
     else {
         apply plugin: "java-library"
@@ -54,10 +97,11 @@ allprojects {
         gdxVersion = '1.10.0'
         gdxControllersVersion = '2.2.1'
         graalvmVersion = '22.0.0'
+        //swtVersion='3.111.0'
+        //osgiPlatform='gtk.linux.x86_64'
     }
     group 'io.github.anyicomplex'
     version gdxVersion
-
 }
 
 dependencies {
@@ -73,8 +117,20 @@ subprojects {
 }
 
 project(":backends:lwjgl3") {
+    /*
+    configurations.all {
+        resolutionStrategy {
+            dependencySubstitution {
+                // The maven property ${osgi.platform} is not handled by Gradle
+                // so we replace the dependency, using the osgi platform from the project settings
+                substitute module('org.eclipse.platform:org.eclipse.swt.${osgi.platform}') with module("org.eclipse.platform:org.eclipse.swt.$osgiPlatform:$swtVersion")
+            }
+        }
+    }
+     */
     dependencies {
         implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        //implementation "org.eclipse.platform:org.eclipse.swt:$swtVersion"
     }
 }

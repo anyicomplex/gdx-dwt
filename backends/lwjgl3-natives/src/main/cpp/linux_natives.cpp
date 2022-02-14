@@ -1,6 +1,13 @@
 #include "com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives.h"
 #include <fontconfig/fontconfig.h>
 #include "constants.h"
+#include <X11/Xlib.h>
+#include <X11/Xatom.h>
+#include <iostream>
+#include <X11/Xutil.h>
+#include "MwmUtil.h"
+
+using namespace std;
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,6 +40,20 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
     }
     FcFontSetDestroy(fs);
     return jfonts;
+  }
+
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_nhideXWindowButtons
+  (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw, jboolean jhidemaximizebtn, jboolean jhideminimizebtn) {
+    Display * display = (Display*)jdisplay;
+    Window w = (Window)jw;
+
+    PropMwmHints hints;
+    Atom mwm_hints = XInternAtom(display, _XA_MWM_HINTS, False);
+    hints.functions = MWM_FUNC_RESIZE | MWM_FUNC_MOVE | MWM_FUNC_CLOSE;
+    if (jhidemaximizebtn == JNI_FALSE) hints.functions = hints.functions | MWM_FUNC_MAXIMIZE;
+    if (jhideminimizebtn == JNI_FALSE) hints.functions = hints.functions | MWM_FUNC_MINIMIZE;
+    hints.flags = MWM_HINTS_FUNCTIONS;
+    XChangeProperty(display, w, mwm_hints, mwm_hints, 32, PropModeReplace, (unsigned char*)&hints, PROP_MWM_HINTS_ELEMENTS);
   }
 
 #ifdef __cplusplus

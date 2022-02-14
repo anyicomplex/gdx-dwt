@@ -22,6 +22,6 @@ public interface Toolkit {
 
     void windowed(int width, int height);
 
-    boolean openURL(String url);
+    boolean browse(String uri);
 
 }

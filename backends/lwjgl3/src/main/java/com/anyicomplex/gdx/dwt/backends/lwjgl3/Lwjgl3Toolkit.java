@@ -13,6 +13,9 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public class Lwjgl3Toolkit implements Toolkit {
 
     public Lwjgl3Toolkit() {
@@ -81,7 +84,12 @@ public class Lwjgl3Toolkit implements Toolkit {
     }
 
     @Override
-    public boolean openURL(String url) {
+    public boolean browse(String uri) {
+        try {
+            uri = new URI(uri).toString();
+        } catch (URISyntaxException ignored) {
+            return false;
+        }
         return false;
     }
 

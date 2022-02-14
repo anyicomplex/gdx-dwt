@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_nsystemFonts
   (JNIEnv *, jclass);
 
+/*
+ * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
+ * Method:    nhideXWindowButtons
+ * Signature: (JJZZ)V
+ */
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_nhideXWindowButtons
+  (JNIEnv *, jclass, jlong, jlong, jboolean, jboolean);
+
 #ifdef __cplusplus
 }
 #endif

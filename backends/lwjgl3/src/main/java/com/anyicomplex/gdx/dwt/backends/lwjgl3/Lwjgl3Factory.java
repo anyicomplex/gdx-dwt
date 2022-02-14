@@ -3,8 +3,8 @@ package com.anyicomplex.gdx.dwt.backends.lwjgl3;
 import com.anyicomplex.gdx.dwt.Factory;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Shell;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.glfw.GLFWNativeUtils;
-import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
 import com.anyicomplex.gdx.dwt.factory.Shell;
+import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
@@ -24,8 +24,7 @@ public class Lwjgl3Factory implements Factory {
             @Override
             public void run() {
                 long handle = lwjgl3Window.getWindowHandle();
-                if (config.windowHideMaximizeButton) GLFWNativeUtils.glfwHideWindowMaximizeButton(handle);
-                if (config.windowHideMinimizeButton) GLFWNativeUtils.glfwHideWindowMinimizeButton(handle);
+                GLFWNativeUtils.glfwHideWindowButtons(handle, config.windowHideMaximizeButton, config.windowHideMaximizeButton);
                 if (config.initialVisible) GLFW.glfwShowWindow(handle);
             }
         });

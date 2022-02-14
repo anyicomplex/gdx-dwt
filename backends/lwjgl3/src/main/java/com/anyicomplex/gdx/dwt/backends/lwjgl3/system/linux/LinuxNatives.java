@@ -11,4 +11,6 @@ public class LinuxNatives {
 
     public static native Lwjgl3Font[] nsystemFonts();
 
+    public static native void nhideXWindowButtons(long display, long w, boolean maximize, boolean minimize);
+
 }
