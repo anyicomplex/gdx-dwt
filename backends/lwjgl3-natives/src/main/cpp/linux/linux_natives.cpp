@@ -136,11 +136,6 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux
     XChangeProperty(display, w, window_type, XA_ATOM, 32, PropModeReplace, (unsigned char *)&type, 1);
   }
 
-/*
- * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
- * Method:    nsetXWindowSkipList
- * Signature: (JJII)V
- */
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_nsetXWindowSkipList
   (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw, jint taskbar, jint pager) {
     Display *display = (Display *)jdisplay;
