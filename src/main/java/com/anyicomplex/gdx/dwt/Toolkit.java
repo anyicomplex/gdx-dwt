@@ -22,4 +22,6 @@ public interface Toolkit {
 
     boolean browse(String uri);
 
+    boolean open(String path);
+
 }

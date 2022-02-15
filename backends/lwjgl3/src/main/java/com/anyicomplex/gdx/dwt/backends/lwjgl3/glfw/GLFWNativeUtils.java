@@ -24,7 +24,7 @@ public class GLFWNativeUtils {
             LinuxNatives.hideXWindowButtons(display, w, maximize, minimize);
         }
         else if (SharedLibraryLoader.isMac) {
-
+            
         }
     }
 

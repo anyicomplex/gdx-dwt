@@ -12,6 +12,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -89,8 +90,25 @@ public class Lwjgl3Toolkit implements Toolkit {
     public boolean browse(String uri) {
         try {
             uri = new URI(uri).toString();
+            return open(uri);
         } catch (URISyntaxException ignored) {
             return false;
+        }
+    }
+
+    @Override
+    public boolean open(String path) {
+        if (SharedLibraryLoader.isWindows) {
+
+        }
+        else if (SharedLibraryLoader.isLinux) {
+
+        }
+        else if (SharedLibraryLoader.isMac) {
+            try {
+                new ProcessBuilder().command("open", path).start();
+                return true;
+            } catch (IOException ignored) {}
         }
         return false;
     }
