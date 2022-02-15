@@ -14,8 +14,6 @@ public interface Toolkit {
 
     Font defaultFont();
 
-    Font defaultMonoFont();
-
     Font[] systemFonts();
 
     void fullscreen();

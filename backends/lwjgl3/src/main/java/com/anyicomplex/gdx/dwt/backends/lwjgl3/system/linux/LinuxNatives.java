@@ -11,6 +11,16 @@ public class LinuxNatives {
 
     public static native Lwjgl3Font[] nsystemFonts();
 
-    public static native void nhideXWindowButtons(long display, long w, boolean maximize, boolean minimize);
+    public static void hideXWindowButtons(long display, long w, boolean maximize, boolean minimize) {
+        nhideXWindowButtons(display, w, maximize ? 1 : 0, minimize ? 1 : 0);
+    }
+
+    public static native void nhideXWindowButtons(long display, long w, int maximize, int minimize);
+
+    public static Font getGtkDefaultFont() {
+        return ngetGtkDefaultFont();
+    }
+
+    public static native Lwjgl3Font ngetGtkDefaultFont();
 
 }

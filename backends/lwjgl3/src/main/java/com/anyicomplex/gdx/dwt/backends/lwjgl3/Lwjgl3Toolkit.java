@@ -4,7 +4,6 @@ import com.anyicomplex.gdx.dwt.Gdwt;
 import com.anyicomplex.gdx.dwt.Toolkit;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.linux.LinuxNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.PathHelper;
-import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.SystemInfo;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.SystemPath;
 import com.anyicomplex.gdx.dwt.toolkit.Font;
 import com.badlogic.gdx.ApplicationListener;
@@ -24,7 +23,7 @@ public class Lwjgl3Toolkit implements Toolkit {
     }
 
     public void loop(ApplicationListener listener, Lwjgl3ApplicationConfiguration config) {
-        SharedLibraryLoader.isLinux = SystemInfo.isUnixLike() && !SystemInfo.isMac();
+        if (System.getProperty("os.name").equalsIgnoreCase("freebsd")) SharedLibraryLoader.isLinux = true;
         new Lwjgl3Application(listener, config);
     }
 
@@ -50,25 +49,28 @@ public class Lwjgl3Toolkit implements Toolkit {
 
     @Override
     public Font defaultFont() {
-        return null;
-    }
+        if (SharedLibraryLoader.isWindows) {
 
-    @Override
-    public Font defaultMonoFont() {
+        }
+        else if (SharedLibraryLoader.isLinux) {
+            return LinuxNatives.getGtkDefaultFont();
+        }
+        else if (SharedLibraryLoader.isMac) {
+
+        }
         return null;
     }
 
     @Override
     public Font[] systemFonts() {
-        switch (SystemInfo.getSystemType()) {
-            case WINDOWS:
-                break;
-            case LINUX:
-            case SOLARIS:
-            case AIX:
-                return LinuxNatives.systemFonts();
-            case MAC:
-                break;
+        if (SharedLibraryLoader.isWindows) {
+
+        }
+        else if (SharedLibraryLoader.isLinux) {
+            return LinuxNatives.systemFonts();
+        }
+        else if (SharedLibraryLoader.isMac) {
+
         }
         return null;
     }

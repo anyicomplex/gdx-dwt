@@ -25,6 +25,8 @@
 
 package com.anyicomplex.gdx.dwt.backends.lwjgl3.util;
 
+import com.badlogic.gdx.utils.SharedLibraryLoader;
+
 /**
  * Simple utility class that provides system pre-defined paths.
  */
@@ -50,32 +52,26 @@ public class SystemPath {
      */
     public static String userData() {
         String result;
-        switch (SystemInfo.getSystemType()) {
-            case WINDOWS:
-                result = System.getenv("APPDATA");
-                if (result == null) {
-                    float version = Float.parseFloat(SystemInfo.VERSION);
-                    if (version > 5.2) {
-                        result = userHome() + "\\AppData\\Roaming";
-                    }
-                    else {
-                        result = userHome() + "\\Application Data";
-                    }
+        if (SharedLibraryLoader.isWindows) {
+            result = System.getenv("APPDATA");
+            if (result == null) {
+                float version = Float.parseFloat(System.getProperty("os.version"));
+                if (version > 5.2) {
+                    result = userHome() + "\\AppData\\Roaming";
                 }
-                break;
-            case LINUX:
-            case SOLARIS:
-            case AIX:
-            case OTHER_UNIX:
-                result = System.getenv("XDG_DATA_HOME");
-                if (result == null) result = userHome() + "/.local/share";
-                break;
-            case MAC:
-                result = userHome() + "/Library/Application Support";
-                break;
-            default:
-                throw new IllegalStateException("Unable to get user data path: \nUnsupported platform.");
+                else {
+                    result = userHome() + "\\Application Data";
+                }
+            }
         }
+        else if (SharedLibraryLoader.isLinux) {
+            result = System.getenv("XDG_DATA_HOME");
+            if (result == null) result = userHome() + "/.local/share";
+        }
+        else if (SharedLibraryLoader.isMac) {
+            result = userHome() + "/Library/Application Support";
+        }
+        else throw new IllegalStateException("Unable to get user data path: \nUnsupported platform.");
         return result;
     }
 
@@ -87,33 +83,27 @@ public class SystemPath {
      */
     public static String userConfig() {
         String result;
-        switch (SystemInfo.getSystemType()) {
-            case WINDOWS:
-                result = System.getenv("LOCALAPPDATA");
-                if (result == null) result = System.getenv("APPDATA");
-                if (result == null) {
-                    float version = Float.parseFloat(SystemInfo.VERSION);
-                    if (version > 5.2) {
-                        result = userHome() + "\\AppData\\Local";
-                    }
-                    else {
-                        result = userHome() + "\\Application Data";
-                    }
+        if (SharedLibraryLoader.isWindows) {
+            result = System.getenv("LOCALAPPDATA");
+            if (result == null) result = System.getenv("APPDATA");
+            if (result == null) {
+                float version = Float.parseFloat(System.getProperty("os.version"));
+                if (version > 5.2) {
+                    result = userHome() + "\\AppData\\Local";
                 }
-                break;
-            case LINUX:
-            case SOLARIS:
-            case AIX:
-            case OTHER_UNIX:
-                result = System.getenv("XDG_CONFIG_HOME");
-                if (result == null) result = userHome() + "/.config";
-                break;
-            case MAC:
-                result = userHome() + "/Library/Preferences";
-                break;
-            default:
-                throw new IllegalStateException("Unable to get user config path: \nUnsupported platform.");
+                else {
+                    result = userHome() + "\\Application Data";
+                }
+            }
         }
+        else if (SharedLibraryLoader.isLinux) {
+            result = System.getenv("XDG_CONFIG_HOME");
+            if (result == null) result = userHome() + "/.config";
+        }
+        else if (SharedLibraryLoader.isMac) {
+            result = userHome() + "/Library/Preferences";
+        }
+        else throw new IllegalStateException("Unable to get user config path: \nUnsupported platform.");
         return result;
     }
 
@@ -125,33 +115,27 @@ public class SystemPath {
      */
     public static String userCache() {
         String result;
-        switch (SystemInfo.getSystemType()) {
-            case WINDOWS:
-                result = System.getenv("LOCALAPPDATA");
-                if (result == null) result = System.getenv("APPDATA");
-                if (result == null) {
-                    float version = Float.parseFloat(SystemInfo.VERSION);
-                    if (version > 5.2) {
-                        result = userHome() + "\\AppData\\Local";
-                    }
-                    else {
-                        result = userHome() + "\\Application Data";
-                    }
+        if (SharedLibraryLoader.isWindows) {
+            result = System.getenv("LOCALAPPDATA");
+            if (result == null) result = System.getenv("APPDATA");
+            if (result == null) {
+                float version = Float.parseFloat(System.getProperty("os.version"));
+                if (version > 5.2) {
+                    result = userHome() + "\\AppData\\Local";
                 }
-                break;
-            case LINUX:
-            case SOLARIS:
-            case AIX:
-            case OTHER_UNIX:
-                result = System.getenv("XDG_CACHE_HOME");
-                if (result == null) result = userHome() + "/.cache";
-                break;
-            case MAC:
-                result = userHome() + "/Library/Caches";
-                break;
-            default:
-                throw new IllegalStateException("Unable to get user cache path: \nUnsupported platform.");
+                else {
+                    result = userHome() + "\\Application Data";
+                }
+            }
         }
+        else if (SharedLibraryLoader.isLinux) {
+            result = System.getenv("XDG_CACHE_HOME");
+            if (result == null) result = userHome() + "/.cache";
+        }
+        else if (SharedLibraryLoader.isMac) {
+            result = userHome() + "/Library/Caches";
+        }
+        else throw new IllegalStateException("Unable to get user cache path: \nUnsupported platform.");
         return result;
     }
 

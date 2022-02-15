@@ -25,6 +25,8 @@
 
 package com.anyicomplex.gdx.dwt.backends.lwjgl3.util;
 
+import com.badlogic.gdx.utils.SharedLibraryLoader;
+
 /**
  * Simple utility class that helps to build file storage path.
  * @see SystemPath
@@ -159,7 +161,7 @@ public class PathHelper {
      * @return built app cache path
      */
     public static String buildAppCachePath(String companyName, String appType, String appName) {
-        if (SystemInfo.isWindows()) return build(SystemPath.userConfig(), companyName, appType, appName, "Cache");
+        if (SharedLibraryLoader.isWindows) return build(SystemPath.userConfig(), companyName, appType, appName, "Cache");
         return build(SystemPath.userCache(), companyName, appType, appName);
     }
 

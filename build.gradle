@@ -21,7 +21,6 @@ allprojects {
                     // JVM
                     compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include")
                     compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include/linux")
-                    /*
                     // GTK-3.0
                     compileTask.get().compilerArgs.add("-I/usr/include/gtk-3.0")
                     compileTask.get().compilerArgs.add("-I/usr/include/pango-1.0")
@@ -47,13 +46,11 @@ allprojects {
                     compileTask.get().compilerArgs.add("-I/usr/include/at-spi-2.0")
                     // pthread
                     compileTask.get().compilerArgs.add("-pthread")
-                    */
                     // 64-bit
                     compileTask.get().compilerArgs.add('-D_FILE_OFFSET_BITS=64')
                     // libs
                     linkTask.get().linkerArgs.add("-lfontconfig")
                     linkTask.get().linkerArgs.add("-lX11")
-                    /*
                     linkTask.get().linkerArgs.add("-lgtk-3")
                     linkTask.get().linkerArgs.add("-lgdk-3")
                     linkTask.get().linkerArgs.add("-lz")
@@ -67,7 +64,6 @@ allprojects {
                     linkTask.get().linkerArgs.add("-lgio-2.0")
                     linkTask.get().linkerArgs.add("-lgobject-2.0")
                     linkTask.get().linkerArgs.add("-lglib-2.0")
-                     */
                 } else if (os.contains('mac')) {
                     compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include")
                     compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include/darwin")
@@ -97,7 +93,7 @@ allprojects {
         gdxVersion = '1.10.0'
         gdxControllersVersion = '2.2.1'
         graalvmVersion = '22.0.0'
-        //swtVersion='3.111.0'
+        swtVersion='3.111.0'
         //osgiPlatform='gtk.linux.x86_64'
     }
     group 'io.github.anyicomplex'

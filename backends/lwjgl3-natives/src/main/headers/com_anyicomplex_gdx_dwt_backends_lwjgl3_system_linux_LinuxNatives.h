@@ -18,10 +18,18 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
  * Method:    nhideXWindowButtons
- * Signature: (JJZZ)V
+ * Signature: (JJII)V
  */
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_nhideXWindowButtons
-  (JNIEnv *, jclass, jlong, jlong, jboolean, jboolean);
+  (JNIEnv *, jclass, jlong, jlong, jint, jint);
+
+/*
+ * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
+ * Method:    ngetGtkDefaultFont
+ * Signature: ()Lcom/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3Font;
+ */
+JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_ngetGtkDefaultFont
+  (JNIEnv *, jclass);
 
 #ifdef __cplusplus
 }
