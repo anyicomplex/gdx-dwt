@@ -20,7 +20,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
     FcObjectSetAdd(os, FC_FILE);
     FcObjectSetAdd(os, FC_FULLNAME);
     FcObjectSetAdd(os, FC_SPACING);
-   // FcObjectSet *os = FcObjectSetBuild(FC_STYLE, FC_FAMILY, FC_FILE, FC_FULLNAME, FC_SPACING); // Crashes on my machine, I dont know why :(
+    // FcObjectSet *os = FcObjectSetBuild(FC_STYLE, FC_FAMILY, FC_FILE, FC_FULLNAME, FC_SPACING); // Crashes on my machine, I don't know why :(
     FcFontSet* fs = FcFontList(config, pat, os);
     if (!fs) {
       FcObjectSetDestroy(os);

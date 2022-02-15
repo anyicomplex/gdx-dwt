@@ -62,6 +62,10 @@ public class ShellConfiguration {
     public boolean windowHideMaximizeButton = false;
     public boolean windowHideMinimizeButton = false;
 
+    public boolean windowIsDialog = false;
+    public boolean windowSkipTaskbar = false;
+    public boolean windowSkipPager = false;
+
     public static ShellConfiguration copy(ShellConfiguration config) {
         ShellConfiguration copy = new ShellConfiguration();
         copy.set(config);

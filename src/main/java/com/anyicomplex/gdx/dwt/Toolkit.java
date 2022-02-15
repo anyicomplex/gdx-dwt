@@ -1,6 +1,8 @@
 package com.anyicomplex.gdx.dwt;
 
 import com.anyicomplex.gdx.dwt.toolkit.Font;
+import com.anyicomplex.gdx.dwt.toolkit.Notification;
+import com.badlogic.gdx.graphics.Pixmap;
 
 public interface Toolkit {
 
@@ -23,5 +25,11 @@ public interface Toolkit {
     boolean browse(String uri);
 
     boolean open(String path);
+
+    Notification notification(String title, String message);
+
+    Notification notification(Pixmap icon, String title, String message);
+
+    Notification notification(Pixmap icon, String title, String message, long time);
 
 }

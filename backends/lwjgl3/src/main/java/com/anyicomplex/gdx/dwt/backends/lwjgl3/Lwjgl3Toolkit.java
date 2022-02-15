@@ -6,10 +6,12 @@ import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.linux.LinuxNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.PathHelper;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.SystemPath;
 import com.anyicomplex.gdx.dwt.toolkit.Font;
+import com.anyicomplex.gdx.dwt.toolkit.Notification;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 
 import java.io.IOException;
@@ -111,6 +113,21 @@ public class Lwjgl3Toolkit implements Toolkit {
             } catch (IOException ignored) {}
         }
         return false;
+    }
+
+    @Override
+    public Notification notification(String title, String message) {
+        return null;
+    }
+
+    @Override
+    public Notification notification(Pixmap icon, String title, String message) {
+        return null;
+    }
+
+    @Override
+    public Notification notification(Pixmap icon, String title, String message, long time) {
+        return null;
     }
 
 }

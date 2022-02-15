@@ -23,4 +23,16 @@ public class LinuxNatives {
 
     public static native Lwjgl3Font ngetGtkDefaultFont();
 
+    public static void setXWindowIsDialog(long display, long w, boolean dialog) {
+        nsetXWindowIsDialog(display, w, dialog ? 1 : 0);
+    }
+
+    public static native void nsetXWindowIsDialog(long display, long w, int isDialog);
+
+    public static void setXWindowSkipList(long display, long w, boolean skipTaskbar, boolean skipPager) {
+        nsetXWindowSkipList(display, w, skipTaskbar ? 1 : 0, skipPager ? 1 : 0);
+    }
+
+    public static native void nsetXWindowSkipList(long display, long w, int skipTaskbar, int skipPager);
+
 }
