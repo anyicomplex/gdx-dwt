@@ -13,13 +13,16 @@ allprojects {
                     machines.macOS.x86_64
             ]
             binaries.configureEach(CppSharedLibrary) {
+                compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include")
                 if (os.contains('win')) {
-                    compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include")
+                    compileTask.get().compilerArgs.add("-I${project.file('src/main/cpp').absolutePath}/windows")
+                    compileTask.get().compilerArgs.add("-I${project.file('src/main/headers').absolutePath}/windows")
                     compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include/win32")
                     linkTask.get().linkerArgs.add("Shlwapi.lib", "Advapi32.lib")
                 } else if (os.contains('nux')) {
+                    compileTask.get().compilerArgs.add("-I${project.file('src/main/cpp').absolutePath}/linux")
+                    compileTask.get().compilerArgs.add("-I${project.file('src/main/headers').absolutePath}/linux")
                     // JVM
-                    compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include")
                     compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include/linux")
                     // GTK-3.0
                     compileTask.get().compilerArgs.add("-I/usr/include/gtk-3.0")
@@ -65,7 +68,8 @@ allprojects {
                     linkTask.get().linkerArgs.add("-lgobject-2.0")
                     linkTask.get().linkerArgs.add("-lglib-2.0")
                 } else if (os.contains('mac')) {
-                    compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include")
+                    compileTask.get().compilerArgs.add("-I${project.file('src/main/cpp').absolutePath}/macos")
+                    compileTask.get().compilerArgs.add("-I${project.file('src/main/headers').absolutePath}/macos")
                     compileTask.get().compilerArgs.add("-I${Jvm.current().getJavaHome()}/include/darwin")
                     compileTask.get().compilerArgs.add('-mmacosx-version-min=10.4')
                     linkTask.get().linkerArgs.add('-mmacosx-version-min=10.4')
