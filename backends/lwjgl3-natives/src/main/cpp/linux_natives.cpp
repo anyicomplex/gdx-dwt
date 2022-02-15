@@ -72,14 +72,14 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
   }
 
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_nhideXWindowButtons
-  (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw, jint hidemaximizebtn, jint hideminimizebtn) {
+  (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw, jint maximize, jint minimize) {
     Display *display = (Display *)jdisplay;
     Window w = (Window)jw;
     PropMwmHints hints;
     Atom mwm_hints = XInternAtom(display, _XA_MWM_HINTS, False);
     hints.functions = MWM_FUNC_RESIZE | MWM_FUNC_MOVE | MWM_FUNC_CLOSE;
-    if (hidemaximizebtn) hints.functions = hints.functions | MWM_FUNC_MAXIMIZE;
-    if (hideminimizebtn) hints.functions = hints.functions | MWM_FUNC_MINIMIZE;
+    if (!maximize) hints.functions = hints.functions | MWM_FUNC_MAXIMIZE;
+    if (!minimize) hints.functions = hints.functions | MWM_FUNC_MINIMIZE;
     hints.flags = MWM_HINTS_FUNCTIONS;
     XChangeProperty(display, w, mwm_hints, mwm_hints, 32, PropModeReplace, (unsigned char*)&hints, PROP_MWM_HINTS_ELEMENTS);
   }

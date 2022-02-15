@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 public class Lwjgl3Shell implements Shell {
 
     public Lwjgl3Shell(Lwjgl3Window window) {
-        if (window == null) throw new GdxRuntimeException("Window cannot be null.");
+        if (window == null) throw new GdxRuntimeException("window cannot be null.");
         this.window = window;
     }
 

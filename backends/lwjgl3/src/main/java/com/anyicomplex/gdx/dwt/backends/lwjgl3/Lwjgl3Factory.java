@@ -24,7 +24,7 @@ public class Lwjgl3Factory implements Factory {
             @Override
             public void run() {
                 long handle = lwjgl3Window.getWindowHandle();
-                GLFWNativeUtils.glfwHideWindowButtons(handle, config.windowHideMaximizeButton, config.windowHideMaximizeButton);
+                GLFWNativeUtils.glfwHideWindowButtons(handle, config.windowHideMaximizeButton, config.windowHideMinimizeButton);
                 if (config.initialVisible) GLFW.glfwShowWindow(handle);
             }
         });

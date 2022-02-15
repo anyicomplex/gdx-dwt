@@ -14,7 +14,9 @@ public class GLFWNativeUtils {
         if (SharedLibraryLoader.isWindows) {
             long hwnd = GLFWNativeWin32.glfwGetWin32Window(window);
             if (maximize) SetWindowLongPtr(hwnd, GWL_STYLE, GetWindowLongPtr(hwnd, GWL_STYLE) & ~WS_MAXIMIZEBOX);
+            else SetWindowLongPtr(hwnd, GWL_STYLE, GetWindowLongPtr(hwnd, GWL_STYLE) | WS_MAXIMIZEBOX);
             if (minimize) SetWindowLongPtr(hwnd, GWL_STYLE, GetWindowLongPtr(hwnd, GWL_STYLE) & ~WS_MINIMIZEBOX);
+            else SetWindowLongPtr(hwnd, GWL_STYLE, GetWindowLongPtr(hwnd, GWL_STYLE) | WS_MINIMIZEBOX);
         }
         else if (SharedLibraryLoader.isLinux) {
             long display = GLFWNativeX11.glfwGetX11Display();
