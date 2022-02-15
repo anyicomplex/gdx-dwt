@@ -28,4 +28,32 @@ public class GLFWNativeUtils {
         }
     }
 
+    public static void glfwSetWindowIsDialog(long window, boolean dialog) {
+        if (SharedLibraryLoader.isWindows) {
+
+        }
+        else if (SharedLibraryLoader.isLinux) {
+            long display = GLFWNativeX11.glfwGetX11Display();
+            long w = GLFWNativeX11.glfwGetX11Window(window);
+            LinuxNatives.setXWindowIsDialog(display, w, dialog);
+        }
+        else if (SharedLibraryLoader.isMac) {
+
+        }
+    }
+
+    public static void glfwSetWindowSkipList(long window, boolean taskbar, boolean pager) {
+        if (SharedLibraryLoader.isWindows) {
+
+        }
+        else if (SharedLibraryLoader.isLinux) {
+            long display = GLFWNativeX11.glfwGetX11Display();
+            long w = GLFWNativeX11.glfwGetX11Window(window);
+            LinuxNatives.setXWindowSkipList(display, w, taskbar, pager);
+        }
+        else if (SharedLibraryLoader.isMac) {
+
+        }
+    }
+
 }

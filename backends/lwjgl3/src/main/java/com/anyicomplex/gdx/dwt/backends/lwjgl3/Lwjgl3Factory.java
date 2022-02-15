@@ -27,6 +27,8 @@ public class Lwjgl3Factory implements Factory {
             public void run() {
                 long handle = lwjgl3Window.getWindowHandle();
                 GLFWNativeUtils.glfwHideWindowButtons(handle, config.windowHideMaximizeButton, config.windowHideMinimizeButton);
+                GLFWNativeUtils.glfwSetWindowIsDialog(handle, config.windowIsDialog);
+                GLFWNativeUtils.glfwSetWindowSkipList(handle, config.windowSkipTaskbar, config.windowSkipPager);
                 if (config.initialVisible) GLFW.glfwShowWindow(handle);
             }
         });

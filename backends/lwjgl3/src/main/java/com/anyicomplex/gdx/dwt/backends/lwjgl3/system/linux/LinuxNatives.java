@@ -27,12 +27,12 @@ public class LinuxNatives {
         nsetXWindowIsDialog(display, w, dialog ? 1 : 0);
     }
 
-    public static native void nsetXWindowIsDialog(long display, long w, int isDialog);
+    public static native void nsetXWindowIsDialog(long display, long w, int dialog);
 
-    public static void setXWindowSkipList(long display, long w, boolean skipTaskbar, boolean skipPager) {
-        nsetXWindowSkipList(display, w, skipTaskbar ? 1 : 0, skipPager ? 1 : 0);
+    public static void setXWindowSkipList(long display, long w, boolean taskbar, boolean pager) {
+        nsetXWindowSkipList(display, w, taskbar ? 1 : 0, pager ? 1 : 0);
     }
 
-    public static native void nsetXWindowSkipList(long display, long w, int skipTaskbar, int skipPager);
+    public static native void nsetXWindowSkipList(long display, long w, int taskbar, int pager);
 
 }
