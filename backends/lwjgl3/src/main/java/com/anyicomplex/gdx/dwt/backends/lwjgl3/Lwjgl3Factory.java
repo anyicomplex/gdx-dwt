@@ -5,11 +5,13 @@ import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Shell;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.glfw.GLFWNativeUtils;
 import com.anyicomplex.gdx.dwt.factory.Shell;
 import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
+import com.anyicomplex.gdx.dwt.factory.ShellListener;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener;
 import org.lwjgl.glfw.GLFW;
 
 public class Lwjgl3Factory implements Factory {
@@ -28,7 +30,45 @@ public class Lwjgl3Factory implements Factory {
                 if (config.initialVisible) GLFW.glfwShowWindow(handle);
             }
         });
-        return new Lwjgl3Shell(lwjgl3Window);
+        Lwjgl3Shell shell = new Lwjgl3Shell(lwjgl3Window);
+        ShellListener shellListener = config.shellListener;
+        if (shellListener != null) {
+            lwjgl3Config.setWindowListener(new Lwjgl3WindowListener() {
+                @Override
+                public void created(Lwjgl3Window window) {
+                    shellListener.created(shell);
+                }
+                @Override
+                public void iconified(boolean isIconified) {
+                    shellListener.iconified(isIconified);
+                }
+                @Override
+                public void maximized(boolean isMaximized) {
+                    shellListener.maximized(isMaximized);
+                }
+                @Override
+                public void focusLost() {
+                    shellListener.focusLost();
+                }
+                @Override
+                public void focusGained() {
+                    shellListener.focusGained();
+                }
+                @Override
+                public boolean closeRequested() {
+                    return shellListener.closeRequested();
+                }
+                @Override
+                public void filesDropped(String[] files) {
+                    shellListener.filesDropped(files);
+                }
+                @Override
+                public void refreshRequested() {
+                    shellListener.refreshRequested();
+                }
+            });
+        }
+        return shell;
     }
 
     private Lwjgl3ApplicationConfiguration generateLwjgl3Config(ShellConfiguration config) {
