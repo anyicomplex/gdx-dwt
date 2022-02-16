@@ -1,6 +1,7 @@
 package com.anyicomplex.gdx.dwt.backends.lwjgl3;
 
 import com.anyicomplex.gdx.dwt.Factory;
+import com.anyicomplex.gdx.dwt.Gdwt;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Shell;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.glfw.GLFWNativeUtils;
 import com.anyicomplex.gdx.dwt.factory.Shell;
@@ -27,8 +28,8 @@ public class Lwjgl3Factory implements Factory {
             public void run() {
                 long handle = lwjgl3Window.getWindowHandle();
                 GLFWNativeUtils.glfwHideWindowButtons(handle, config.windowHideMaximizeButton, config.windowHideMinimizeButton);
-                GLFWNativeUtils.glfwSetWindowIsDialog(handle, config.windowIsDialog);
-                GLFWNativeUtils.glfwSetWindowSkipList(handle, config.windowSkipTaskbar, config.windowSkipPager);
+                long parent = config.parentShell == null ? 0 : ((Lwjgl3Shell)config.parentShell).getWindow().getWindowHandle();
+                GLFWNativeUtils.glfwSetWindowIsDialog(handle, parent);
                 if (config.initialVisible) GLFW.glfwShowWindow(handle);
             }
         });
@@ -37,43 +38,36 @@ public class Lwjgl3Factory implements Factory {
         if (shellListener != null) {
             lwjgl3Config.setWindowListener(new Lwjgl3WindowListener() {
                 @Override
-                public void created(Lwjgl3Window window) {
-                    shellListener.created(shell);
-                }
+                public void created(Lwjgl3Window window) {shellListener.created(shell);}
                 @Override
-                public void iconified(boolean isIconified) {
-                    shellListener.iconified(isIconified);
-                }
+                public void iconified(boolean isIconified) {shellListener.iconified(isIconified);}
                 @Override
-                public void maximized(boolean isMaximized) {
-                    shellListener.maximized(isMaximized);
-                }
+                public void maximized(boolean isMaximized) {shellListener.maximized(isMaximized);}
                 @Override
-                public void focusLost() {
-                    shellListener.focusLost();
-                }
+                public void focusLost() {shellListener.focusLost();}
                 @Override
-                public void focusGained() {
-                    shellListener.focusGained();
-                }
+                public void focusGained() {shellListener.focusGained();}
                 @Override
-                public boolean closeRequested() {
-                    return shellListener.closeRequested();
-                }
+                public boolean closeRequested() {return shellListener.closeRequested();}
                 @Override
-                public void filesDropped(String[] files) {
-                    shellListener.filesDropped(files);
-                }
+                public void filesDropped(String[] files) {shellListener.filesDropped(files);}
                 @Override
-                public void refreshRequested() {
-                    shellListener.refreshRequested();
-                }
+                public void refreshRequested() {shellListener.refreshRequested();}
             });
         }
         return shell;
     }
 
-    private Lwjgl3ApplicationConfiguration generateLwjgl3Config(ShellConfiguration config) {
+    @Override
+    public Shell dialog(Shell parentShell, ApplicationListener listener, ShellConfiguration config) {
+        ShellConfiguration dialogConfig = ShellConfiguration.copy(config);
+        dialogConfig.parentShell = parentShell;
+        dialogConfig.windowHideMinimizeButton = true;
+        dialogConfig.windowHideMaximizeButton = true;
+        return frame(listener, dialogConfig);
+    }
+
+    static Lwjgl3ApplicationConfiguration generateLwjgl3Config(ShellConfiguration config) {
         Lwjgl3ApplicationConfiguration lwjgl3Config = new Lwjgl3ApplicationConfiguration();
         lwjgl3Config.setInitialVisible(config.initialVisible);
         lwjgl3Config.disableAudio(config.disableAudio);
@@ -84,7 +78,8 @@ public class Lwjgl3Factory implements Factory {
         lwjgl3Config.setHdpiMode(config.hdpiMode);
         lwjgl3Config.setIdleFPS(config.idleFPS);
         lwjgl3Config.setMaxNetThreads(config.maxNetThreads);
-        lwjgl3Config.setPreferencesConfig(config.preferencesDirectory, config.preferencesFileType);
+        lwjgl3Config.setPreferencesConfig(config.preferencesDirectory == null ?
+                Gdwt.toolkit.prefsDir(null, null) : config.preferencesDirectory, config.preferencesFileType);
         lwjgl3Config.useOpenGL3(config.useGL30, config.gles30ContextMajorVersion, config.gles30ContextMinorVersion);
         lwjgl3Config.setAutoIconify(config.autoIconify);
         lwjgl3Config.setDecorated(config.windowDecorated);

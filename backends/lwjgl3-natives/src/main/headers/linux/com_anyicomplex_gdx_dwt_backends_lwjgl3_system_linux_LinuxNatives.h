@@ -33,19 +33,11 @@ JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_li
 
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
- * Method:    nsetXWindowIsDialog
- * Signature: (JJI)V
+ * Method:    setXWindowIsDialog
+ * Signature: (JJJ)V
  */
-JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_nsetXWindowIsDialog
-  (JNIEnv *, jclass, jlong, jlong, jint);
-
-/*
- * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
- * Method:    nsetXWindowSkipList
- * Signature: (JJII)V
- */
-JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_nsetXWindowSkipList
-  (JNIEnv *, jclass, jlong, jlong, jint, jint);
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_setXWindowIsDialog
+  (JNIEnv *, jclass, jlong, jlong, jlong);
 
 #ifdef __cplusplus
 }

@@ -8,4 +8,6 @@ public interface Factory {
 
     Shell frame(ApplicationListener listener, ShellConfiguration config);
 
+    Shell dialog(Shell parentShell, ApplicationListener listener, ShellConfiguration config);
+
 }

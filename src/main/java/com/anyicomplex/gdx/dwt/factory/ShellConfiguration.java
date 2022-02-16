@@ -1,6 +1,5 @@
 package com.anyicomplex.gdx.dwt.factory;
 
-import com.anyicomplex.gdx.dwt.Gdwt;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Color;
@@ -51,7 +50,7 @@ public class ShellConfiguration {
     public int idleFPS = 60;
     public int foregroundFPS = 0;
 
-    public String preferencesDirectory = Gdwt.toolkit.prefsDir(null, null);
+    public String preferencesDirectory;
     public Files.FileType preferencesFileType = Files.FileType.Absolute;
 
     public HdpiMode hdpiMode = HdpiMode.Logical;
@@ -62,9 +61,7 @@ public class ShellConfiguration {
     public boolean windowHideMaximizeButton = false;
     public boolean windowHideMinimizeButton = false;
 
-    public boolean windowIsDialog = false;
-    public boolean windowSkipTaskbar = false;
-    public boolean windowSkipPager = false;
+    public Shell parentShell;
 
     public static ShellConfiguration copy(ShellConfiguration config) {
         ShellConfiguration copy = new ShellConfiguration();
@@ -118,6 +115,9 @@ public class ShellConfiguration {
         hdpiMode = config.hdpiMode;
         debug = config.debug;
         debugStream = config.debugStream;
+        windowHideMaximizeButton = config.windowHideMaximizeButton;
+        windowHideMinimizeButton = config.windowHideMinimizeButton;
+        parentShell = config.parentShell;
     }
 
 }

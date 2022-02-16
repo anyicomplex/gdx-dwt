@@ -1,10 +1,13 @@
 package com.anyicomplex.gdx.dwt;
 
+import com.anyicomplex.gdx.dwt.factory.Shell;
 import com.anyicomplex.gdx.dwt.toolkit.Font;
 import com.anyicomplex.gdx.dwt.toolkit.Notification;
 import com.badlogic.gdx.graphics.Pixmap;
 
 public interface Toolkit {
+
+    Shell rootShell();
 
     String prefsDir(String companyName, String appName);
 

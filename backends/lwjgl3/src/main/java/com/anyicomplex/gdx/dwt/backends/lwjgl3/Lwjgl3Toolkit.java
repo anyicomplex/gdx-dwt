@@ -2,18 +2,23 @@ package com.anyicomplex.gdx.dwt.backends.lwjgl3;
 
 import com.anyicomplex.gdx.dwt.Gdwt;
 import com.anyicomplex.gdx.dwt.Toolkit;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Shell;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.glfw.GLFWNativeUtils;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.linux.LinuxNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.PathHelper;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.SystemPath;
+import com.anyicomplex.gdx.dwt.factory.Shell;
+import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
+import com.anyicomplex.gdx.dwt.factory.ShellListener;
 import com.anyicomplex.gdx.dwt.toolkit.Font;
 import com.anyicomplex.gdx.dwt.toolkit.Notification;
 import com.anyicomplex.xdg.utils.XDGOpen;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl3.*;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
+import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
 import java.net.URI;
@@ -21,14 +26,68 @@ import java.net.URISyntaxException;
 
 public class Lwjgl3Toolkit implements Toolkit {
 
-    public Lwjgl3Toolkit() {
-        Gdwt.toolkit = this;
-        Gdwt.factory = new Lwjgl3Factory();
+    private Shell rootShell;
+
+    @Override
+    public Shell rootShell() {
+        return rootShell;
     }
 
-    public void loop(ApplicationListener listener, Lwjgl3ApplicationConfiguration config) {
+    public Lwjgl3Toolkit(ApplicationListener listener, ShellConfiguration config) {
         if (System.getProperty("os.name").equalsIgnoreCase("freebsd")) SharedLibraryLoader.isLinux = true;
-        new Lwjgl3Application(listener, config);
+        Gdwt.toolkit = this;
+        Gdwt.factory = new Lwjgl3Factory();
+        Lwjgl3ApplicationConfiguration lwjgl3Config = Lwjgl3Factory.generateLwjgl3Config(config);
+        lwjgl3Config.setInitialVisible(false);
+        ShellListener shellListener = config.shellListener;
+        if (shellListener == null) {
+            lwjgl3Config.setWindowListener(new Lwjgl3WindowAdapter() {
+                @Override
+                public void created(Lwjgl3Window window) {
+                    rootShell = new Lwjgl3Shell(window);
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            long handle = window.getWindowHandle();
+                            GLFWNativeUtils.glfwHideWindowButtons(handle, config.windowHideMaximizeButton, config.windowHideMinimizeButton);
+                            if (config.initialVisible) GLFW.glfwShowWindow(handle);
+                        }
+                    });
+                }
+            });
+        }
+        else {
+            lwjgl3Config.setWindowListener(new Lwjgl3WindowListener() {
+                @Override
+                public void created(Lwjgl3Window window) {
+                    rootShell = new Lwjgl3Shell(window);
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            long handle = window.getWindowHandle();
+                            GLFWNativeUtils.glfwHideWindowButtons(handle, config.windowHideMaximizeButton, config.windowHideMinimizeButton);
+                            if (config.initialVisible) GLFW.glfwShowWindow(handle);
+                        }
+                    });
+                    shellListener.created(rootShell);
+                }
+                @Override
+                public void iconified(boolean isIconified) {shellListener.iconified(isIconified);}
+                @Override
+                public void maximized(boolean isMaximized) {shellListener.maximized(isMaximized);}
+                @Override
+                public void focusLost() {shellListener.focusLost();}
+                @Override
+                public void focusGained() {shellListener.focusGained();}
+                @Override
+                public boolean closeRequested() {return shellListener.closeRequested();}
+                @Override
+                public void filesDropped(String[] files) {shellListener.filesDropped(files);}
+                @Override
+                public void refreshRequested() {shellListener.refreshRequested();}
+            });
+        }
+        new Lwjgl3Application(listener, lwjgl3Config);
     }
 
     @Override
