@@ -96,9 +96,6 @@ allprojects {
     ext {
         gdxVersion = '1.10.0'
         gdxControllersVersion = '2.2.1'
-        graalvmVersion = '22.0.0'
-        swtVersion='3.111.0'
-        //osgiPlatform='gtk.linux.x86_64'
     }
     group 'io.github.anyicomplex'
     version gdxVersion
@@ -117,20 +114,12 @@ subprojects {
 }
 
 project(":backends:lwjgl3") {
-    /*
-    configurations.all {
-        resolutionStrategy {
-            dependencySubstitution {
-                // The maven property ${osgi.platform} is not handled by Gradle
-                // so we replace the dependency, using the osgi platform from the project settings
-                substitute module('org.eclipse.platform:org.eclipse.swt.${osgi.platform}') with module("org.eclipse.platform:org.eclipse.swt.$osgiPlatform:$swtVersion")
-            }
-        }
-    }
-     */
+    def os = System.getProperty("os.name").toLowerCase()
     dependencies {
         implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        //implementation "org.eclipse.platform:org.eclipse.swt:$swtVersion"
+        if (os.contains('nux')) {
+            implementation 'io.github.anyicomplex:xdg-utils-java:1.1.3-rc1'
+        }
     }
 }

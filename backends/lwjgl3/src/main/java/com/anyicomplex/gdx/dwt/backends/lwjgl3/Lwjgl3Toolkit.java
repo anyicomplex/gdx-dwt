@@ -7,6 +7,7 @@ import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.PathHelper;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.SystemPath;
 import com.anyicomplex.gdx.dwt.toolkit.Font;
 import com.anyicomplex.gdx.dwt.toolkit.Notification;
+import com.anyicomplex.xdg.utils.XDGOpen;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
@@ -104,7 +105,8 @@ public class Lwjgl3Toolkit implements Toolkit {
 
         }
         else if (SharedLibraryLoader.isLinux) {
-
+            XDGOpen.process(null, path);
+            return true;
         }
         else if (SharedLibraryLoader.isMac) {
             try {
