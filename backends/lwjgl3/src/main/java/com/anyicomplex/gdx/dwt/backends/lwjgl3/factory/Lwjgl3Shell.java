@@ -17,4 +17,9 @@ public class Lwjgl3Shell implements Shell {
         return window;
     }
 
+    @Override
+    public void close() {
+        window.closeWindow();
+    }
+
 }

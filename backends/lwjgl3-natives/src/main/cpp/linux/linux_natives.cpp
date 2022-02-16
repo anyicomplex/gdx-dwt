@@ -135,8 +135,8 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux
     if (parent) {
       Atom type_dialog = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
       XChangeProperty(display, w, window_type, XA_ATOM, 32, PropModeReplace, (unsigned char *)&type_dialog, 1);
-      Atom skip_pager = XInternAtom(display, "_NET_WM_STATE_SKIP_PAGER", False);
-      XChangeProperty(display, w, wm_state, XA_ATOM, 32, PropModeReplace, (unsigned char *)&skip_pager, 1);
+      Atom modal = XInternAtom(display, "_NET_WM_STATE_MODAL", False);
+      XChangeProperty(display, w, wm_state, XA_ATOM, 32, PropModeReplace, (unsigned char *)&modal, 1);
       XSetTransientForHint(display, w, parent);
     }
     else {
