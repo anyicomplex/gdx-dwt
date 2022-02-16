@@ -54,6 +54,11 @@ public class Lwjgl3Toolkit implements Toolkit {
                         }
                     });
                 }
+                @Override
+                public boolean closeRequested() {
+                    Gdwt.toolkit.rootShell().closeAllChildShells();
+                    return true;
+                }
             });
         }
         else {
@@ -80,7 +85,10 @@ public class Lwjgl3Toolkit implements Toolkit {
                 @Override
                 public void focusGained() {shellListener.focusGained();}
                 @Override
-                public boolean closeRequested() {return shellListener.closeRequested();}
+                public boolean closeRequested() {
+                    Gdwt.toolkit.rootShell().closeAllChildShells();
+                    return shellListener.closeRequested();
+                }
                 @Override
                 public void filesDropped(String[] files) {shellListener.filesDropped(files);}
                 @Override
