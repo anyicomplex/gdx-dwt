@@ -127,24 +127,30 @@ JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_li
 
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_setXWindowIsDialog
   (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw, jlong jparent) {
-    Display *display = (Display *)jdisplay;
-    Window w = (Window)jw;
-    Window parent = (Window)jparent;
-    Atom window_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
-    Atom wm_state = XInternAtom(display, "_NET_WM_STATE", False);
-    if (parent) {
+    if (jparent) {
+      Display *display = (Display *)jdisplay;
+      Window w = (Window)jw;
+      Window parent = (Window)jparent;
+      Atom window_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
+      Atom wm_state = XInternAtom(display, "_NET_WM_STATE", False);
       Atom type_dialog = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
       XChangeProperty(display, w, window_type, XA_ATOM, 32, PropModeReplace, (unsigned char *)&type_dialog, 1);
       Atom modal = XInternAtom(display, "_NET_WM_STATE_MODAL", False);
       XChangeProperty(display, w, wm_state, XA_ATOM, 32, PropModeReplace, (unsigned char *)&modal, 1);
       XSetTransientForHint(display, w, parent);
     }
-    else {
-      Atom type_normal = XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", False);
-      XChangeProperty(display, w, window_type, XA_ATOM, 32, PropModeReplace, (unsigned char *)&type_normal, 1);
-      XChangeProperty(display, w, wm_state, XA_ATOM, 32, PropModeReplace, NULL, 0);
-      XSetTransientForHint(display, w, NULL);
-    }
+  }
+
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_unsetXWindowIsDialog
+  (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw) {
+    Display *display = (Display *)jdisplay;
+    Window w = (Window)jw;
+    Atom window_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
+    Atom wm_state = XInternAtom(display, "_NET_WM_STATE", False);
+    Atom type_normal = XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", False);
+    XChangeProperty(display, w, window_type, XA_ATOM, 32, PropModeReplace, (unsigned char *)&type_normal, 1);
+    XChangeProperty(display, w, wm_state, XA_ATOM, 32, PropModeReplace, None, 0);
+    XSetTransientForHint(display, w, None);
   }
 
 #ifdef __cplusplus

@@ -25,4 +25,6 @@ public class LinuxNatives {
 
     public static native void setXWindowIsDialog(long display, long w, long parent);
 
+    public static native void unsetXWindowIsDialog(long display, long w);
+
 }

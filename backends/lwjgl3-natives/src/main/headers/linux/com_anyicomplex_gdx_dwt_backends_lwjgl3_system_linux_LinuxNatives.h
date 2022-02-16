@@ -39,6 +39,14 @@ JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_li
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_setXWindowIsDialog
   (JNIEnv *, jclass, jlong, jlong, jlong);
 
+/*
+ * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
+ * Method:    unsetXWindowIsDialog
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_unsetXWindowIsDialog
+  (JNIEnv *, jclass, jlong, jlong);
+
 #ifdef __cplusplus
 }
 #endif

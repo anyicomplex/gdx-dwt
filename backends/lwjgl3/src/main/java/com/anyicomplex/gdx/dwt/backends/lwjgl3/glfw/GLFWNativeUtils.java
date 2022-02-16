@@ -43,4 +43,18 @@ public class GLFWNativeUtils {
         }
     }
 
+    public static void glfwUnsetWindowIsDialog(long window) {
+        if (SharedLibraryLoader.isWindows) {
+
+        }
+        else if (SharedLibraryLoader.isLinux) {
+            long display = GLFWNativeX11.glfwGetX11Display();
+            long w = GLFWNativeX11.glfwGetX11Window(window);
+            LinuxNatives.unsetXWindowIsDialog(display, w);
+        }
+        else if (SharedLibraryLoader.isMac) {
+
+        }
+    }
+
 }
