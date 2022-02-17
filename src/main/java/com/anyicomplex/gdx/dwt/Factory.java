@@ -10,4 +10,8 @@ public interface Factory {
 
     Shell dialog(Shell parentShell, ApplicationListener listener, ShellConfiguration config);
 
+    Shell tooltip(Shell parentShell, ApplicationListener listener, ShellConfiguration config);
+
+    Shell popup(ApplicationListener listener, ShellConfiguration config);
+
 }

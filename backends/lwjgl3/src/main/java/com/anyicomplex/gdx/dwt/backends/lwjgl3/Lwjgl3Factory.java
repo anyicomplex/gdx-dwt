@@ -79,6 +79,16 @@ public class Lwjgl3Factory implements Factory {
         return frame(listener, dialogConfig);
     }
 
+    @Override
+    public Shell tooltip(Shell parentShell, ApplicationListener listener, ShellConfiguration config) {
+        return null;
+    }
+
+    @Override
+    public Shell popup(ApplicationListener listener, ShellConfiguration config) {
+        return null;
+    }
+
     public static Lwjgl3ApplicationConfiguration generateLwjgl3Config(ShellConfiguration config) {
         Lwjgl3ApplicationConfiguration lwjgl3Config = new Lwjgl3ApplicationConfiguration();
         lwjgl3Config.setInitialVisible(config.initialVisible);
