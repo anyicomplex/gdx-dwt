@@ -18,10 +18,10 @@ public class Lwjgl3Factory implements Factory {
     @Override
     public Shell dialog(Shell parentShell, ApplicationListener listener, ShellConfiguration config) {
         ShellConfiguration dialogConfig = ShellConfiguration.copy(config);
+        dialogConfig.shellType = Shell.ShellType.Dialog;
         dialogConfig.parentShell = parentShell;
         dialogConfig.windowHideMinimizeButton = true;
         dialogConfig.windowHideMaximizeButton = true;
-        dialogConfig.shellType = Shell.ShellType.Dialog;
         return frame(listener, dialogConfig);
     }
 

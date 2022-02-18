@@ -22,7 +22,7 @@ import java.net.URISyntaxException;
 
 public class Lwjgl3Toolkit implements Toolkit {
 
-    private final Shell rootShell;
+    private final Lwjgl3Shell rootShell;
 
     @Override
     public Shell rootShell() {
@@ -34,7 +34,7 @@ public class Lwjgl3Toolkit implements Toolkit {
         Gdwt.toolkit = this;
         Gdwt.factory = new Lwjgl3Factory();
         rootShell = new Lwjgl3Shell(listener, config);
-        ((Lwjgl3Shell)rootShell).loop();
+        rootShell.loop();
     }
 
     @Override

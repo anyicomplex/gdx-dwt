@@ -17,6 +17,8 @@ public interface Shell {
 
     boolean isRootShell();
 
+    Shell parentShell();
+
     Array<Shell> getChildShells();
 
     default void closeAllChildShells() {

@@ -19,20 +19,26 @@ import org.lwjgl.glfw.GLFW;
 public class Lwjgl3Shell implements Shell {
 
     private final Array<Shell> childShells = new Array<>();
+    private final Shell parentShell;
+    private final ShellType shellType;
 
-    private final ShellConfiguration shellConfig;
     private final ApplicationListener applicationListener;
     private final Lwjgl3ApplicationConfiguration lwjgl3Config;
     private final boolean isRootShell;
 
     @Override
     public ShellType type() {
-        return shellConfig.shellType;
+        return shellType;
     }
 
     @Override
     public boolean isRootShell() {
         return isRootShell;
+    }
+
+    @Override
+    public Shell parentShell() {
+        return parentShell;
     }
 
     @Override
@@ -43,11 +49,13 @@ public class Lwjgl3Shell implements Shell {
     public Lwjgl3Shell(ApplicationListener listener, ShellConfiguration config) {
         if (config == null) throw new GdxRuntimeException("config cannot be null.");
         applicationListener = listener;
-        shellConfig = ShellConfiguration.copy(config);
+        ShellConfiguration shellConfig = ShellConfiguration.copy(config);
         lwjgl3Config = Lwjgl3Factory.generateLwjgl3Config(shellConfig);
         lwjgl3Config.setInitialVisible(false);
         ShellListener shellListener = shellConfig.shellListener;
         isRootShell = Gdwt.toolkit.rootShell() == null;
+        shellType = shellConfig.shellType;
+        parentShell = isRootShell ? null : (shellType == ShellType.Dialog ? shellConfig.parentShell : null);
         lwjgl3Config.setWindowListener(new Lwjgl3WindowListener() {
             @Override
             public void created(Lwjgl3Window window) {
@@ -58,13 +66,10 @@ public class Lwjgl3Shell implements Shell {
                         long handle = window.getWindowHandle();
                         GLFWNativeUtils.glfwHideWindowButtons(handle, shellConfig.windowHideMaximizeButton,
                                 shellConfig.windowHideMinimizeButton);
-                        if (!isRootShell) {
+                        if (!isRootShell && parentShell != null) {
+                            parentShell.getChildShells().add(Lwjgl3Shell.this);
                             if (shellConfig.shellType == ShellType.Dialog) {
-                                Shell parentShell = shellConfig.parentShell;
-                                if (parentShell != null) {
-                                    parentShell.getChildShells().add(Lwjgl3Shell.this);
-                                    GLFWNativeUtils.glfwSetWindowIsDialog(handle, ((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
-                                }
+                                GLFWNativeUtils.glfwSetWindowIsDialog(handle, ((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
                             }
                         }
                         if (shellConfig.initialVisible) GLFW.glfwShowWindow(handle);
