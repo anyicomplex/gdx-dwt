@@ -62,6 +62,7 @@ public class ShellConfiguration {
     public boolean windowHideMinimizeButton = false;
 
     public Shell parentShell;
+    public Shell.ShellType shellType = Shell.ShellType.Normal;
 
     public static ShellConfiguration copy(ShellConfiguration config) {
         ShellConfiguration copy = new ShellConfiguration();
@@ -118,6 +119,7 @@ public class ShellConfiguration {
         windowHideMaximizeButton = config.windowHideMaximizeButton;
         windowHideMinimizeButton = config.windowHideMinimizeButton;
         parentShell = config.parentShell;
+        shellType = config.shellType;
     }
 
 }

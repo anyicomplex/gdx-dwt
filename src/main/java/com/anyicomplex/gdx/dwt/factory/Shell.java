@@ -4,7 +4,18 @@ import com.badlogic.gdx.utils.Array;
 
 public interface Shell {
 
+    enum ShellType {
+        Normal,
+        Dialog,
+        Tooltip,
+        Popup
+    }
+
     void close();
+
+    ShellType type();
+
+    boolean isRootShell();
 
     Array<Shell> getChildShells();
 

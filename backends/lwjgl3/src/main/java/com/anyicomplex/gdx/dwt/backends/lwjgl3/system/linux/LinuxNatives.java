@@ -27,4 +27,12 @@ public class LinuxNatives {
 
     public static native void unsetXWindowIsDialog(long display, long w);
 
+    public static native void setXWindowIsTooltip(long display, long w);
+
+    public static native void unsetXWindowIsTooltip(long display, long w);
+
+    public static native void setXWindowIsPopup(long display, long w);
+
+    public static native void unsetXWindowIsPopup(long display, long w);
+
 }

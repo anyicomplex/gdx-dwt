@@ -3,71 +3,16 @@ package com.anyicomplex.gdx.dwt.backends.lwjgl3;
 import com.anyicomplex.gdx.dwt.Factory;
 import com.anyicomplex.gdx.dwt.Gdwt;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Shell;
-import com.anyicomplex.gdx.dwt.backends.lwjgl3.glfw.GLFWNativeUtils;
 import com.anyicomplex.gdx.dwt.factory.Shell;
 import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
-import com.anyicomplex.gdx.dwt.factory.ShellListener;
 import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl3.*;
-import org.lwjgl.glfw.GLFW;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
 public class Lwjgl3Factory implements Factory {
 
     @Override
     public Shell frame(ApplicationListener listener, ShellConfiguration config) {
-        Lwjgl3Application app = (Lwjgl3Application) Gdx.app;
-        Lwjgl3ApplicationConfiguration lwjgl3Config = generateLwjgl3Config(config);
-        lwjgl3Config.setInitialVisible(false);
-        Lwjgl3Window lwjgl3Window = app.newWindow(listener, lwjgl3Config);
-        Lwjgl3Shell shell = new Lwjgl3Shell(lwjgl3Window);
-        app.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                long handle = lwjgl3Window.getWindowHandle();
-                GLFWNativeUtils.glfwHideWindowButtons(handle, config.windowHideMaximizeButton, config.windowHideMinimizeButton);
-                Shell parentShell = config.parentShell;
-                if (parentShell != null) {
-                    parentShell.getChildShells().add(shell);
-                    GLFWNativeUtils.glfwSetWindowIsDialog(handle, ((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
-                }
-                if (config.initialVisible) GLFW.glfwShowWindow(handle);
-            }
-        });
-        ShellListener shellListener = config.shellListener;
-        if (shellListener == null) {
-            lwjgl3Config.setWindowListener(new Lwjgl3WindowAdapter() {
-                @Override
-                public boolean closeRequested() {
-                    shell.closeAllChildShells();
-                    return true;
-                }
-            });
-        }
-        else {
-            lwjgl3Config.setWindowListener(new Lwjgl3WindowListener() {
-                @Override
-                public void created(Lwjgl3Window window) {shellListener.created(shell);}
-                @Override
-                public void iconified(boolean isIconified) {shellListener.iconified(isIconified);}
-                @Override
-                public void maximized(boolean isMaximized) {shellListener.maximized(isMaximized);}
-                @Override
-                public void focusLost() {shellListener.focusLost();}
-                @Override
-                public void focusGained() {shellListener.focusGained();}
-                @Override
-                public boolean closeRequested() {
-                    shell.closeAllChildShells();
-                    return shellListener.closeRequested();
-                }
-                @Override
-                public void filesDropped(String[] files) {shellListener.filesDropped(files);}
-                @Override
-                public void refreshRequested() {shellListener.refreshRequested();}
-            });
-        }
-        return shell;
+        return new Lwjgl3Shell(listener, config);
     }
 
     @Override
@@ -76,6 +21,7 @@ public class Lwjgl3Factory implements Factory {
         dialogConfig.parentShell = parentShell;
         dialogConfig.windowHideMinimizeButton = true;
         dialogConfig.windowHideMaximizeButton = true;
+        dialogConfig.shellType = Shell.ShellType.Dialog;
         return frame(listener, dialogConfig);
     }
 
