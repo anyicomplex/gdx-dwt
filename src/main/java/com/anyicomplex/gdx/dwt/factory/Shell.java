@@ -28,4 +28,13 @@ public interface Shell {
         }
     }
 
+    default void closeChildShells(ShellType type) {
+        Array<Shell> shells = getChildShells();
+        if (shells != null) {
+            for (Shell shell : shells) {
+                if (shell.type() == type) shell.close();
+            }
+        }
+    }
+
 }

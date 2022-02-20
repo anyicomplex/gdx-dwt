@@ -25,6 +25,22 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux
 
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
+ * Method:    grabPointer
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_grabPointer
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
+ * Method:    ungrabPointer
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_ungrabPointer
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
  * Method:    ngetGtkDefaultFont
  * Signature: ()Lcom/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3Font;
  */
@@ -41,11 +57,27 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux
 
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
- * Method:    unsetXWindowIsDialog
+ * Method:    setXWindowIsNormal
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_unsetXWindowIsDialog
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_setXWindowIsNormal
   (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
+ * Method:    setXWindowIsTooltip
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_setXWindowIsTooltip
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
+ * Method:    setXWindowIsPopup
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_setXWindowIsPopup
+  (JNIEnv *, jclass, jlong, jlong, jlong);
 
 #ifdef __cplusplus
 }

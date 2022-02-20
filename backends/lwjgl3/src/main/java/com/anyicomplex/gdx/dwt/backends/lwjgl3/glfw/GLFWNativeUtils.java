@@ -13,10 +13,12 @@ public class GLFWNativeUtils {
     public static void glfwHideWindowButtons(long window, boolean maximize, boolean minimize) {
         if (SharedLibraryLoader.isWindows) {
             long hwnd = GLFWNativeWin32.glfwGetWin32Window(window);
-            if (maximize) SetWindowLongPtr(hwnd, GWL_STYLE, GetWindowLongPtr(hwnd, GWL_STYLE) & ~WS_MAXIMIZEBOX);
-            else SetWindowLongPtr(hwnd, GWL_STYLE, GetWindowLongPtr(hwnd, GWL_STYLE) | WS_MAXIMIZEBOX);
-            if (minimize) SetWindowLongPtr(hwnd, GWL_STYLE, GetWindowLongPtr(hwnd, GWL_STYLE) & ~WS_MINIMIZEBOX);
-            else SetWindowLongPtr(hwnd, GWL_STYLE, GetWindowLongPtr(hwnd, GWL_STYLE) | WS_MINIMIZEBOX);
+            long windowLongPtr = GetWindowLongPtr(hwnd, GWL_STYLE);
+            if (maximize) windowLongPtr = windowLongPtr & ~WS_MAXIMIZEBOX;
+            else windowLongPtr = windowLongPtr | WS_MAXIMIZEBOX;
+            if (minimize) windowLongPtr = windowLongPtr & ~WS_MINIMIZEBOX;
+            else windowLongPtr = windowLongPtr | WS_MINIMIZEBOX;
+            SetWindowLongPtr(hwnd, GWL_STYLE, windowLongPtr);
         }
         else if (SharedLibraryLoader.isLinux) {
             long display = GLFWNativeX11.glfwGetX11Display();
@@ -25,6 +27,32 @@ public class GLFWNativeUtils {
         }
         else if (SharedLibraryLoader.isMac) {
             
+        }
+    }
+
+    public static void glfwGrabPointer(long window) {
+        if (SharedLibraryLoader.isWindows) {
+
+        }
+        else if (SharedLibraryLoader.isLinux) {
+            long display = GLFWNativeX11.glfwGetX11Display();
+            long w = GLFWNativeX11.glfwGetX11Window(window);
+            LinuxNatives.grabPointer(display, w);
+        }
+        else if (SharedLibraryLoader.isMac) {
+
+        }
+    }
+
+    public static void glfwUngrabPointer() {
+        if (SharedLibraryLoader.isWindows) {
+
+        }
+        else if (SharedLibraryLoader.isLinux) {
+            LinuxNatives.ungrabPointer(GLFWNativeX11.glfwGetX11Display());
+        }
+        else if (SharedLibraryLoader.isMac) {
+
         }
     }
 
@@ -43,14 +71,44 @@ public class GLFWNativeUtils {
         }
     }
 
-    public static void glfwUnsetWindowIsDialog(long window) {
+    public static void glfwSetWindowIsNormal(long window) {
         if (SharedLibraryLoader.isWindows) {
 
         }
         else if (SharedLibraryLoader.isLinux) {
             long display = GLFWNativeX11.glfwGetX11Display();
             long w = GLFWNativeX11.glfwGetX11Window(window);
-            LinuxNatives.unsetXWindowIsDialog(display, w);
+            LinuxNatives.setXWindowIsNormal(display, w);
+        }
+        else if (SharedLibraryLoader.isMac) {
+
+        }
+    }
+
+    public static void glfwSetWindowIsTooltip(long window, long parent) {
+        if (SharedLibraryLoader.isWindows) {
+
+        }
+        else if (SharedLibraryLoader.isLinux) {
+            long display = GLFWNativeX11.glfwGetX11Display();
+            long w = GLFWNativeX11.glfwGetX11Window(window);
+            long wparent = GLFWNativeX11.glfwGetX11Window(parent);
+            LinuxNatives.setXWindowIsTooltip(display, w, wparent);
+        }
+        else if (SharedLibraryLoader.isMac) {
+
+        }
+    }
+
+    public static void glfwSetWindowIsPopup(long window, long parent) {
+        if (SharedLibraryLoader.isWindows) {
+
+        }
+        else if (SharedLibraryLoader.isLinux) {
+            long display = GLFWNativeX11.glfwGetX11Display();
+            long w = GLFWNativeX11.glfwGetX11Window(window);
+            long wparent = GLFWNativeX11.glfwGetX11Window(parent);
+            LinuxNatives.setXWindowIsPopup(display, w, wparent);
         }
         else if (SharedLibraryLoader.isMac) {
 

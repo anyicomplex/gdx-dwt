@@ -55,7 +55,19 @@ public class Lwjgl3Shell implements Shell {
         ShellListener shellListener = shellConfig.shellListener;
         isRootShell = Gdwt.toolkit.rootShell() == null;
         shellType = shellConfig.shellType;
-        parentShell = isRootShell ? null : (shellType == ShellType.Dialog ? shellConfig.parentShell : null);
+        if (isRootShell) parentShell = null;
+        else {
+            switch (shellType) {
+                case Dialog:
+                case Tooltip:
+                case Popup:
+                    parentShell = shellConfig.parentShell;
+                    break;
+                default:
+                    parentShell = null;
+                    break;
+            }
+        }
         lwjgl3Config.setWindowListener(new Lwjgl3WindowListener() {
             @Override
             public void created(Lwjgl3Window window) {
@@ -64,12 +76,20 @@ public class Lwjgl3Shell implements Shell {
                     @Override
                     public void run() {
                         long handle = window.getWindowHandle();
-                        GLFWNativeUtils.glfwHideWindowButtons(handle, shellConfig.windowHideMaximizeButton,
-                                shellConfig.windowHideMinimizeButton);
+                        if (shellConfig.windowDecorated) GLFWNativeUtils.glfwHideWindowButtons(handle,
+                                shellConfig.windowHideMaximizeButton, shellConfig.windowHideMinimizeButton);
                         if (!isRootShell && parentShell != null) {
                             parentShell.getChildShells().add(Lwjgl3Shell.this);
-                            if (shellConfig.shellType == ShellType.Dialog) {
-                                GLFWNativeUtils.glfwSetWindowIsDialog(handle, ((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
+                            switch (shellType) {
+                                case Dialog:
+                                    GLFWNativeUtils.glfwSetWindowIsDialog(handle, ((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
+                                    break;
+                                case Tooltip:
+                                    GLFWNativeUtils.glfwSetWindowIsTooltip(handle, ((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
+                                    break;
+                                case Popup:
+                                    GLFWNativeUtils.glfwSetWindowIsPopup(handle, ((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
+                                    break;
                             }
                         }
                         if (shellConfig.initialVisible) GLFW.glfwShowWindow(handle);
@@ -95,8 +115,15 @@ public class Lwjgl3Shell implements Shell {
             }
             @Override
             public boolean closeRequested() {
-                closeAllChildShells();
-                return shellListener == null || shellListener.closeRequested();
+                if (shellListener == null) {
+                    closeAllChildShells();
+                    return true;
+                }
+                else {
+                    boolean close = shellListener.closeRequested();
+                    if (close) closeAllChildShells();
+                    return close;
+                }
             }
             @Override
             public void filesDropped(String[] files) {

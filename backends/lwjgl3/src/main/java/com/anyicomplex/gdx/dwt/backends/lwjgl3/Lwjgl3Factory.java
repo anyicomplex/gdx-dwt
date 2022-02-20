@@ -27,12 +27,20 @@ public class Lwjgl3Factory implements Factory {
 
     @Override
     public Shell tooltip(Shell parentShell, ApplicationListener listener, ShellConfiguration config) {
-        return null;
+        ShellConfiguration tooltipConfig = ShellConfiguration.copy(config);
+        tooltipConfig.shellType = Shell.ShellType.Tooltip;
+        tooltipConfig.parentShell = parentShell;
+        tooltipConfig.windowDecorated = false;
+        return frame(listener, tooltipConfig);
     }
 
     @Override
-    public Shell popup(ApplicationListener listener, ShellConfiguration config) {
-        return null;
+    public Shell popup(Shell parentShell, ApplicationListener listener, ShellConfiguration config) {
+        ShellConfiguration popupConfig = ShellConfiguration.copy(config);
+        popupConfig.shellType = Shell.ShellType.Popup;
+        popupConfig.parentShell = parentShell;
+        popupConfig.windowDecorated = false;
+        return frame(listener, popupConfig);
     }
 
     public static Lwjgl3ApplicationConfiguration generateLwjgl3Config(ShellConfiguration config) {

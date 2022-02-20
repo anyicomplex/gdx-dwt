@@ -21,18 +21,18 @@ public class LinuxNatives {
         return ngetGtkDefaultFont();
     }
 
+    public static native void grabPointer(long display, long w);
+
+    public static native void ungrabPointer(long display);
+
     public static native Lwjgl3Font ngetGtkDefaultFont();
 
     public static native void setXWindowIsDialog(long display, long w, long parent);
 
-    public static native void unsetXWindowIsDialog(long display, long w);
+    public static native void setXWindowIsNormal(long display, long w);
 
-    public static native void setXWindowIsTooltip(long display, long w);
+    public static native void setXWindowIsTooltip(long display, long w, long parent);
 
-    public static native void unsetXWindowIsTooltip(long display, long w);
-
-    public static native void setXWindowIsPopup(long display, long w);
-
-    public static native void unsetXWindowIsPopup(long display, long w);
+    public static native void setXWindowIsPopup(long display, long w, long parent);
 
 }

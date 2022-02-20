@@ -12,6 +12,6 @@ public interface Factory {
 
     Shell tooltip(Shell parentShell, ApplicationListener listener, ShellConfiguration config);
 
-    Shell popup(ApplicationListener listener, ShellConfiguration config);
+    Shell popup(Shell parentShell, ApplicationListener listener, ShellConfiguration config);
 
 }
