@@ -10,7 +10,7 @@ extern "C" {
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
  * Method:    nsystemFonts
- * Signature: ()[Lcom/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3Font;
+ * Signature: ()[Lcom/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3FontHandle;
  */
 JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_nsystemFonts
   (JNIEnv *, jclass);
@@ -42,7 +42,7 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
  * Method:    ngetGtkDefaultFont
- * Signature: ()Lcom/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3Font;
+ * Signature: ()Lcom/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3FontHandle;
  */
 JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_ngetGtkDefaultFont
   (JNIEnv *, jclass);

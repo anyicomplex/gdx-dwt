@@ -29,7 +29,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
       FcFini();
       return NULL;
     }
-    jclass jfontcls = env->FindClass("com/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3Font");
+    jclass jfontcls = env->FindClass("com/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3FontHandle");
     if (jfontcls == NULL) {
       FcObjectSetDestroy(os);
       FcPatternDestroy(pat);
@@ -114,7 +114,7 @@ JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_li
     FcPatternDestroy(pat);
     FcConfigDestroy(config);
     FcFini();
-    jclass jfontcls = env->FindClass("com/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3Font");
+    jclass jfontcls = env->FindClass("com/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3FontHandle");
     jmethodID jfontinit = env->GetMethodID(jfontcls, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V");
     jobject jfont = env->NewObject(jfontcls, jfontinit, jstyle, jfamily, jfile, jfullname, spacing);
     if (jstyle != NULL) env->DeleteLocalRef(jstyle);

@@ -9,7 +9,7 @@ import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.PathHelper;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.SystemPath;
 import com.anyicomplex.gdx.dwt.factory.Shell;
 import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
-import com.anyicomplex.gdx.dwt.toolkit.Font;
+import com.anyicomplex.gdx.dwt.toolkit.FontHandle;
 import com.anyicomplex.gdx.dwt.toolkit.Notification;
 import com.anyicomplex.xdg.utils.XDGOpen;
 import com.badlogic.gdx.ApplicationListener;
@@ -69,7 +69,7 @@ public class Lwjgl3Toolkit implements Toolkit {
     }
 
     @Override
-    public Font defaultFont() {
+    public FontHandle defaultFont() {
         if (SharedLibraryLoader.isWindows) {
 
         }
@@ -83,7 +83,7 @@ public class Lwjgl3Toolkit implements Toolkit {
     }
 
     @Override
-    public Font[] systemFonts() {
+    public FontHandle[] systemFonts() {
         if (SharedLibraryLoader.isWindows) {
 
         }

@@ -1,6 +1,6 @@
 package com.anyicomplex.gdx.dwt.backends.lwjgl3;
 
-import com.anyicomplex.gdx.dwt.Factory;
+import com.anyicomplex.gdx.dwt.AbstractFactory;
 import com.anyicomplex.gdx.dwt.Gdwt;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Shell;
 import com.anyicomplex.gdx.dwt.factory.Shell;
@@ -8,10 +8,10 @@ import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
-public class Lwjgl3Factory implements Factory {
+public class Lwjgl3Factory extends AbstractFactory {
 
     @Override
-    public Shell frame(ApplicationListener listener, ShellConfiguration config) {
+    public Shell window(ApplicationListener listener, ShellConfiguration config) {
         return new Lwjgl3Shell(listener, config);
     }
 
@@ -22,7 +22,7 @@ public class Lwjgl3Factory implements Factory {
         dialogConfig.parentShell = parentShell;
         dialogConfig.windowHideMinimizeButton = true;
         dialogConfig.windowHideMaximizeButton = true;
-        return frame(listener, dialogConfig);
+        return window(listener, dialogConfig);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class Lwjgl3Factory implements Factory {
         tooltipConfig.shellType = Shell.ShellType.Tooltip;
         tooltipConfig.parentShell = parentShell;
         tooltipConfig.windowDecorated = false;
-        return frame(listener, tooltipConfig);
+        return window(listener, tooltipConfig);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class Lwjgl3Factory implements Factory {
         popupConfig.shellType = Shell.ShellType.Popup;
         popupConfig.parentShell = parentShell;
         popupConfig.windowDecorated = false;
-        return frame(listener, popupConfig);
+        return window(listener, popupConfig);
     }
 
     public static Lwjgl3ApplicationConfiguration generateLwjgl3Config(ShellConfiguration config) {

@@ -16,7 +16,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import org.lwjgl.glfw.GLFW;
 
-public class Lwjgl3Shell implements Shell {
+public class Lwjgl3Shell extends Shell {
 
     private final Array<Shell> childShells = new Array<>();
     private final Shell parentShell;
@@ -78,6 +78,7 @@ public class Lwjgl3Shell implements Shell {
                         long handle = window.getWindowHandle();
                         if (shellConfig.windowDecorated) GLFWNativeUtils.glfwHideWindowButtons(handle,
                                 shellConfig.windowHideMaximizeButton, shellConfig.windowHideMinimizeButton);
+                        boolean shouldFocusParent = false;
                         if (!isRootShell && parentShell != null) {
                             parentShell.getChildShells().add(Lwjgl3Shell.this);
                             switch (shellType) {
@@ -86,13 +87,20 @@ public class Lwjgl3Shell implements Shell {
                                     break;
                                 case Tooltip:
                                     GLFWNativeUtils.glfwSetWindowIsTooltip(handle, ((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
+                                    GLFW.glfwSetWindowAttrib(handle, GLFW.GLFW_FOCUS_ON_SHOW, GLFW.GLFW_FALSE);
+                                    GLFW.glfwSetWindowAttrib(handle, GLFW.GLFW_FLOATING, GLFW.GLFW_TRUE);
+                                    shouldFocusParent = true;
                                     break;
                                 case Popup:
                                     GLFWNativeUtils.glfwSetWindowIsPopup(handle, ((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
+                                    GLFW.glfwSetWindowAttrib(handle, GLFW.GLFW_FOCUS_ON_SHOW, GLFW.GLFW_FALSE);
+                                    GLFW.glfwSetWindowAttrib(handle, GLFW.GLFW_FLOATING, GLFW.GLFW_TRUE);
+                                    shouldFocusParent = true;
                                     break;
                             }
                         }
                         if (shellConfig.initialVisible) GLFW.glfwShowWindow(handle);
+                        if (shouldFocusParent) GLFW.glfwFocusWindow(((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
                     }
                 });
                 if (shellListener != null) shellListener.created(Lwjgl3Shell.this);

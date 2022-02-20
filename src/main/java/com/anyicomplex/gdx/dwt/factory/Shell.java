@@ -2,33 +2,33 @@ package com.anyicomplex.gdx.dwt.factory;
 
 import com.badlogic.gdx.utils.Array;
 
-public interface Shell {
+public abstract class Shell {
 
-    enum ShellType {
+    public enum ShellType {
         Normal,
         Dialog,
         Tooltip,
         Popup
     }
 
-    void close();
+    public abstract void close();
 
-    ShellType type();
+    public abstract ShellType type();
 
-    boolean isRootShell();
+    public abstract boolean isRootShell();
 
-    Shell parentShell();
+    public abstract Shell parentShell();
 
-    Array<Shell> getChildShells();
+    public abstract Array<Shell> getChildShells();
 
-    default void closeAllChildShells() {
+    public void closeAllChildShells() {
         Array<Shell> shells = getChildShells();
         if (shells != null) {
             for (Shell shell : shells) shell.close();
         }
     }
 
-    default void closeChildShells(ShellType type) {
+    public void closeChildShells(ShellType type) {
         Array<Shell> shells = getChildShells();
         if (shells != null) {
             for (Shell shell : shells) {

@@ -1,7 +1,7 @@
 package com.anyicomplex.gdx.dwt;
 
 import com.anyicomplex.gdx.dwt.factory.Shell;
-import com.anyicomplex.gdx.dwt.toolkit.Font;
+import com.anyicomplex.gdx.dwt.toolkit.FontHandle;
 import com.anyicomplex.gdx.dwt.toolkit.Notification;
 import com.badlogic.gdx.graphics.Pixmap;
 
@@ -21,9 +21,9 @@ public interface Toolkit {
 
     String tmpDir();
 
-    Font defaultFont();
+    FontHandle defaultFont();
 
-    Font[] systemFonts();
+    FontHandle[] systemFonts();
 
     void fullscreen();
 
