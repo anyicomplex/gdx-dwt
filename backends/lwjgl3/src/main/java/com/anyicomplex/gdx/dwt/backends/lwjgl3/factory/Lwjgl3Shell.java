@@ -165,6 +165,7 @@ public class Lwjgl3Shell extends Shell {
     @Override
     public void close() {
         window.closeWindow();
+        if (parentShell != null) parentShell.getChildShells().removeValue(this, true);
         closeAllChildShells();
     }
 
