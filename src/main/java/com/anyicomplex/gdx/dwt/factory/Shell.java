@@ -37,4 +37,8 @@ public abstract class Shell {
         }
     }
 
+    public abstract int positionX();
+
+    public abstract int positionY();
+
 }

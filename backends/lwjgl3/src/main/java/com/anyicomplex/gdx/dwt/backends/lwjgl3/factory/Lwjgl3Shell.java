@@ -169,4 +169,14 @@ public class Lwjgl3Shell extends Shell {
         closeAllChildShells();
     }
 
+    @Override
+    public int positionX() {
+        return window.getPositionX();
+    }
+
+    @Override
+    public int positionY() {
+        return window.getPositionY();
+    }
+
 }
