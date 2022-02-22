@@ -24,7 +24,10 @@ public abstract class Shell {
     public void closeAllChildShells() {
         Array<Shell> shells = getChildShells();
         if (shells != null) {
-            for (Shell shell : shells) shell.close();
+            for (Shell shell : shells) {
+                shell.close();
+                getChildShells().removeValue(shell, true);
+            }
         }
     }
 
@@ -33,6 +36,7 @@ public abstract class Shell {
         if (shells != null) {
             for (Shell shell : shells) {
                 if (shell.type() == type) shell.close();
+                getChildShells().removeValue(shell, true);
             }
         }
     }

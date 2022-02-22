@@ -21,11 +21,11 @@ public class LinuxNatives {
         return ngetGtkDefaultFont();
     }
 
+    public static native Lwjgl3FontHandle ngetGtkDefaultFont();
+
     public static native void grabPointer(long display, long w);
 
     public static native void ungrabPointer(long display);
-
-    public static native Lwjgl3FontHandle ngetGtkDefaultFont();
 
     public static native void setXWindowIsDialog(long display, long w, long parent);
 

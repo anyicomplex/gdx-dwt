@@ -1,6 +1,7 @@
 package com.anyicomplex.gdx.dwt.backends.lwjgl3.glfw;
 
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.linux.LinuxNatives;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.windows.WindowsNatives;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import org.lwjgl.glfw.GLFWNativeWin32;
 import org.lwjgl.glfw.GLFWNativeX11;
@@ -12,13 +13,13 @@ public class GLFWNativeUtils {
 
     public static void glfwHideWindowButtons(long window, boolean maximize, boolean minimize) {
         if (SharedLibraryLoader.isWindows) {
-            long hwnd = GLFWNativeWin32.glfwGetWin32Window(window);
-            long windowLongPtr = GetWindowLongPtr(hwnd, GWL_STYLE);
+            long hWnd = GLFWNativeWin32.glfwGetWin32Window(window);
+            long windowLongPtr = GetWindowLongPtr(hWnd, GWL_STYLE);
             if (maximize) windowLongPtr = windowLongPtr & ~WS_MAXIMIZEBOX;
             else windowLongPtr = windowLongPtr | WS_MAXIMIZEBOX;
             if (minimize) windowLongPtr = windowLongPtr & ~WS_MINIMIZEBOX;
             else windowLongPtr = windowLongPtr | WS_MINIMIZEBOX;
-            SetWindowLongPtr(hwnd, GWL_STYLE, windowLongPtr);
+            SetWindowLongPtr(hWnd, GWL_STYLE, windowLongPtr);
         }
         else if (SharedLibraryLoader.isLinux) {
             long display = GLFWNativeX11.glfwGetX11Display();
@@ -32,7 +33,7 @@ public class GLFWNativeUtils {
 
     public static void glfwGrabPointer(long window) {
         if (SharedLibraryLoader.isWindows) {
-
+            WindowsNatives.grabPointer(GLFWNativeWin32.glfwGetWin32Window(window));
         }
         else if (SharedLibraryLoader.isLinux) {
             long display = GLFWNativeX11.glfwGetX11Display();
@@ -46,7 +47,7 @@ public class GLFWNativeUtils {
 
     public static void glfwUngrabPointer() {
         if (SharedLibraryLoader.isWindows) {
-
+            WindowsNatives.ungrabPointer();
         }
         else if (SharedLibraryLoader.isLinux) {
             LinuxNatives.ungrabPointer(GLFWNativeX11.glfwGetX11Display());
@@ -58,7 +59,9 @@ public class GLFWNativeUtils {
 
     public static void glfwSetWindowIsDialog(long window, long parent) {
         if (SharedLibraryLoader.isWindows) {
-
+            long hWnd = GLFWNativeWin32.glfwGetWin32Window(window);
+            long parentHWnd = GLFWNativeWin32.glfwGetWin32Window(parent);
+            WindowsNatives.setWindowIsDialog(hWnd, parentHWnd);
         }
         else if (SharedLibraryLoader.isLinux) {
             long display = GLFWNativeX11.glfwGetX11Display();
@@ -73,7 +76,8 @@ public class GLFWNativeUtils {
 
     public static void glfwSetWindowIsNormal(long window) {
         if (SharedLibraryLoader.isWindows) {
-
+            long hWnd = GLFWNativeWin32.glfwGetWin32Window(window);
+            WindowsNatives.setWindowIsNormal(hWnd);
         }
         else if (SharedLibraryLoader.isLinux) {
             long display = GLFWNativeX11.glfwGetX11Display();
@@ -87,7 +91,9 @@ public class GLFWNativeUtils {
 
     public static void glfwSetWindowIsTooltip(long window, long parent) {
         if (SharedLibraryLoader.isWindows) {
-
+            long hWnd = GLFWNativeWin32.glfwGetWin32Window(window);
+            long parentHWnd = GLFWNativeWin32.glfwGetWin32Window(parent);
+            WindowsNatives.setWindowIsTooltip(hWnd, parentHWnd);
         }
         else if (SharedLibraryLoader.isLinux) {
             long display = GLFWNativeX11.glfwGetX11Display();
@@ -102,7 +108,9 @@ public class GLFWNativeUtils {
 
     public static void glfwSetWindowIsPopup(long window, long parent) {
         if (SharedLibraryLoader.isWindows) {
-
+            long hWnd = GLFWNativeWin32.glfwGetWin32Window(window);
+            long parentHWnd = GLFWNativeWin32.glfwGetWin32Window(parent);
+            WindowsNatives.setWindowIsPopup(hWnd, parentHWnd);
         }
         else if (SharedLibraryLoader.isLinux) {
             long display = GLFWNativeX11.glfwGetX11Display();

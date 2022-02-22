@@ -6,3 +6,5 @@
 /backends/lwjgl3-natives/build/
 /backends/build/
 /backends/lwjgl3/src/test/
+/backends/lwjgl3-natives/src/main/c/build.sh
+/backends/lwjgl3-natives/src/main/resources/

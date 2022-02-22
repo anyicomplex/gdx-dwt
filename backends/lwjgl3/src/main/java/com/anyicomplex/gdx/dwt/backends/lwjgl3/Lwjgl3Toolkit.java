@@ -5,6 +5,7 @@ import com.anyicomplex.gdx.dwt.Toolkit;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Shell;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.glfw.GLFWNativeUtils;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.linux.LinuxNatives;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.windows.WindowsNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.PathHelper;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.SystemPath;
 import com.anyicomplex.gdx.dwt.factory.Shell;
@@ -71,7 +72,7 @@ public class Lwjgl3Toolkit implements Toolkit {
     @Override
     public FontHandle defaultFont() {
         if (SharedLibraryLoader.isWindows) {
-
+            return WindowsNatives.getWin32DefaultFont();
         }
         else if (SharedLibraryLoader.isLinux) {
             return LinuxNatives.getGtkDefaultFont();
@@ -85,7 +86,7 @@ public class Lwjgl3Toolkit implements Toolkit {
     @Override
     public FontHandle[] systemFonts() {
         if (SharedLibraryLoader.isWindows) {
-
+            return WindowsNatives.systemFonts();
         }
         else if (SharedLibraryLoader.isLinux) {
             return LinuxNatives.systemFonts();
@@ -119,7 +120,7 @@ public class Lwjgl3Toolkit implements Toolkit {
     @Override
     public boolean open(String path) {
         if (SharedLibraryLoader.isWindows) {
-
+            WindowsNatives.open(path);
         }
         else if (SharedLibraryLoader.isLinux) {
             XDGOpen.process(null, path);

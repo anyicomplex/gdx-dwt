@@ -1,5 +1,3 @@
 rootProject.name = 'gdx-dwt'
 include 'backends:lwjgl3'
 include 'backends:lwjgl3-natives'
-findProject(':backends:lwjgl3-natives')?.name = 'lwjgl3-natives'
-
