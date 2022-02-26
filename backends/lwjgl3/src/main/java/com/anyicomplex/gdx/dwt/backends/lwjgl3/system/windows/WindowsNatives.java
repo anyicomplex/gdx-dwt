@@ -1,21 +1,24 @@
 package com.anyicomplex.gdx.dwt.backends.lwjgl3.system.windows;
 
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.toolkit.Lwjgl3FontHandle;
-import com.anyicomplex.gdx.dwt.toolkit.FontHandle;
+
+import static org.lwjgl.system.windows.User32.*;
+import static org.lwjgl.system.windows.User32.GWL_STYLE;
 
 public class WindowsNatives {
 
-    public static FontHandle[] systemFonts() {
-        return nsystemFonts();
+    public static native Lwjgl3FontHandle[] getSystemFonts();
+
+    public static native Lwjgl3FontHandle getDefaultFont();
+
+    public static void hideWindowButtons(long hWnd, boolean maximize, boolean minimize) {
+        long windowLongPtr = GetWindowLongPtr(hWnd, GWL_STYLE);
+        if (maximize) windowLongPtr = windowLongPtr & ~WS_MAXIMIZEBOX;
+        else windowLongPtr = windowLongPtr | WS_MAXIMIZEBOX;
+        if (minimize) windowLongPtr = windowLongPtr & ~WS_MINIMIZEBOX;
+        else windowLongPtr = windowLongPtr | WS_MINIMIZEBOX;
+        SetWindowLongPtr(hWnd, GWL_STYLE, windowLongPtr);
     }
-
-    public static native Lwjgl3FontHandle[] nsystemFonts();
-
-    public static FontHandle getWin32DefaultFont() {
-        return ngetWin32DefaultFont();
-    }
-
-    public static native Lwjgl3FontHandle ngetWin32DefaultFont();
 
     public static native void grabPointer(long hWnd);
 

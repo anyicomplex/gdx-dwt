@@ -1,6 +1,5 @@
 #include "com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives.h"
 #include <fontconfig/fontconfig.h>
-#include "constants.h"
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include "MwmUtil.h"
@@ -10,7 +9,7 @@
 extern "C" {
 #endif
 
-JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_nsystemFonts
+JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_getSystemFonts
   (JNIEnv *env, jclass clazz) {
     FcConfig *config = FcInitLoadConfigAndFonts();
     FcPattern *pat = FcPatternCreate();
@@ -20,7 +19,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
     FcObjectSetAdd(os, FC_FILE);
     FcObjectSetAdd(os, FC_FULLNAME);
     FcObjectSetAdd(os, FC_SPACING);
-    // FcObjectSet *os = FcObjectSetBuild(FC_STYLE, FC_FAMILY, FC_FILE, FC_FULLNAME, FC_SPACING); // Crashes on my machine, I don't know why :(
     FcFontSet* fs = FcFontList(config, pat, os);
     if (!fs) {
       FcObjectSetDestroy(os);
@@ -45,17 +43,24 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
       FcFini();
       return NULL;
     }
-    jmethodID jfontinit = (*env)->GetMethodID(env, jfontcls, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V");
+    jmethodID jfontinit = (*env)->GetMethodID(env, jfontcls, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V");
+    if (jfontinit == NULL) {
+      FcObjectSetDestroy(os);
+      FcPatternDestroy(pat);
+      FcConfigDestroy(config);
+      FcFini();
+      return NULL;
+    }
     for (jsize i = 0; fs && i < fs->nfont; i ++) {
       FcPattern *font = fs->fonts[i];
       FcChar8 *style, *family, *file, *fullname;
-      jint spacing;
+      int spacing;
       jstring jstyle =  FcPatternGetString(font, FC_STYLE, 0, &style) == FcResultMatch ? (*env)->NewStringUTF(env, style) : NULL;
       jstring jfamily = FcPatternGetString(font, FC_FAMILY, 0, &family) == FcResultMatch ? (*env)->NewStringUTF(env, family) : NULL;
       jstring jfile = FcPatternGetString(font, FC_FILE, 0, &file) == FcResultMatch ? (*env)->NewStringUTF(env, file) : NULL;
       jstring jfullname = FcPatternGetString(font, FC_FULLNAME, 0, &fullname) == FcResultMatch ? (*env)->NewStringUTF(env, fullname) : NULL;
-      spacing = FcPatternGetInteger(font, FC_SPACING, 0, &spacing) == FcResultMatch ? spacing : INT_INVALID;
-      jobject jfont = (*env)->NewObject(env, jfontcls, jfontinit, jstyle, jfamily, jfile, jfullname, spacing);
+      jboolean mono = FcPatternGetInteger(font, FC_SPACING, 0, &spacing) == FcResultMatch ? (spacing == 100 ? JNI_TRUE : JNI_FALSE) : JNI_FALSE;
+      jobject jfont = (*env)->NewObject(env, jfontcls, jfontinit, jstyle, jfamily, jfile, jfullname, mono);
       if (jstyle != NULL) (*env)->DeleteLocalRef(env, jstyle);
       if (jfamily != NULL) (*env)->DeleteLocalRef(env, jfamily);
       if (jfile != NULL) (*env)->DeleteLocalRef(env, jfile);
@@ -71,20 +76,20 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
     return jfonts;
   }
 
-JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_nhideXWindowButtons
-  (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw, jint maximize, jint minimize) {
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_hideXWindowButtons
+  (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw, jboolean maximize, jboolean minimize) {
     Display *display = (Display *)jdisplay;
     Window w = (Window)jw;
     PropMwmHints hints;
     Atom mwm_hints = XInternAtom(display, _XA_MWM_HINTS, False);
     hints.functions = MWM_FUNC_RESIZE | MWM_FUNC_MOVE | MWM_FUNC_CLOSE;
-    if (!maximize) hints.functions = hints.functions | MWM_FUNC_MAXIMIZE;
-    if (!minimize) hints.functions = hints.functions | MWM_FUNC_MINIMIZE;
+    if (maximize == JNI_FALSE) hints.functions = hints.functions | MWM_FUNC_MAXIMIZE;
+    if (minimize == JNI_FALSE) hints.functions = hints.functions | MWM_FUNC_MINIMIZE;
     hints.flags = MWM_HINTS_FUNCTIONS;
     XChangeProperty(display, w, mwm_hints, mwm_hints, 32, PropModeReplace, (unsigned char*)&hints, PROP_MWM_HINTS_ELEMENTS);
   }
 
-JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_ngetGtkDefaultFont
+JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_getGtkDefaultFont
   (JNIEnv *env, jclass clazz) {
     if (gtk_init_check(0, NULL) == FALSE) return NULL;
     g_type_class_unref (g_type_class_ref (GTK_TYPE_IMAGE_MENU_ITEM));
@@ -104,23 +109,26 @@ JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_li
       return NULL;
     }
     FcChar8 *style, *family, *file, *fullname;
-    jint spacing;
+    int spacing;
     jstring jstyle =  FcPatternGetString(font, FC_STYLE, 0, &style) == FcResultMatch ? (*env)->NewStringUTF(env, style) : NULL;
     jstring jfamily = FcPatternGetString(font, FC_FAMILY, 0, &family) == FcResultMatch ? (*env)->NewStringUTF(env, family) : NULL;
     jstring jfile = FcPatternGetString(font, FC_FILE, 0, &file) == FcResultMatch ? (*env)->NewStringUTF(env, file) : NULL;
     jstring jfullname = FcPatternGetString(font, FC_FULLNAME, 0, &fullname) == FcResultMatch ? (*env)->NewStringUTF(env, fullname) : NULL;
-    spacing = FcPatternGetInteger(font, FC_SPACING, 0, &spacing) == FcResultMatch ? spacing : INT_INVALID;
+    jboolean mono = FcPatternGetInteger(font, FC_SPACING, 0, &spacing) == FcResultMatch ? (spacing == 100 ? JNI_TRUE : JNI_FALSE) : JNI_FALSE;
     FcPatternDestroy(font);
     FcPatternDestroy(pat);
     FcConfigDestroy(config);
     FcFini();
     jclass jfontcls = (*env)->FindClass(env, "com/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3FontHandle");
-    jmethodID jfontinit = (*env)->GetMethodID(env, jfontcls, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V");
-    jobject jfont = (*env)->NewObject(env, jfontcls, jfontinit, jstyle, jfamily, jfile, jfullname, spacing);
+    if (jfontcls == NULL) return NULL;
+    jmethodID jfontinit = (*env)->GetMethodID(env, jfontcls, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V");
+    if (jfontcls == NULL) return NULL;
+    jobject jfont = (*env)->NewObject(env, jfontcls, jfontinit, jstyle, jfamily, jfile, jfullname, mono);
     if (jstyle != NULL) (*env)->DeleteLocalRef(env, jstyle);
     if (jfamily != NULL) (*env)->DeleteLocalRef(env, jfamily);
     if (jfile != NULL) (*env)->DeleteLocalRef(env, jfile);
     if (jfullname != NULL) (*env)->DeleteLocalRef(env, jfullname);
+    if (jfont == NULL) return NULL;
     (*env)->DeleteLocalRef(env, jfontcls);
     return jfont;
   }

@@ -5,6 +5,7 @@ import com.anyicomplex.gdx.dwt.Toolkit;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Shell;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.glfw.GLFWNativeUtils;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.linux.LinuxNatives;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.macosx.MacOSXNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.windows.WindowsNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.PathHelper;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.SystemPath;
@@ -12,15 +13,16 @@ import com.anyicomplex.gdx.dwt.factory.Shell;
 import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
 import com.anyicomplex.gdx.dwt.toolkit.FontHandle;
 import com.anyicomplex.gdx.dwt.toolkit.Notification;
-import com.anyicomplex.xdg.utils.XDGOpen;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.function.Predicate;
 
 public class Lwjgl3Toolkit implements Toolkit {
 
@@ -72,7 +74,7 @@ public class Lwjgl3Toolkit implements Toolkit {
     @Override
     public FontHandle defaultFont() {
         if (SharedLibraryLoader.isWindows) {
-            return WindowsNatives.getWin32DefaultFont();
+            return WindowsNatives.getDefaultFont();
         }
         else if (SharedLibraryLoader.isLinux) {
             return LinuxNatives.getGtkDefaultFont();
@@ -85,16 +87,24 @@ public class Lwjgl3Toolkit implements Toolkit {
 
     @Override
     public FontHandle[] systemFonts() {
+        FontHandle[] systemFonts = null;
         if (SharedLibraryLoader.isWindows) {
-            return WindowsNatives.systemFonts();
+            systemFonts = WindowsNatives.getSystemFonts();
         }
         else if (SharedLibraryLoader.isLinux) {
-            return LinuxNatives.systemFonts();
+            systemFonts = LinuxNatives.getSystemFonts();
         }
         else if (SharedLibraryLoader.isMac) {
 
         }
-        return null;
+        if (systemFonts == null) return null;
+        return Arrays.stream(systemFonts).distinct().filter(new Predicate<FontHandle>() {
+            @Override
+            public boolean test(FontHandle fontHandle) {
+                FileHandle file = fontHandle.file();
+                return file != null && file.exists() && !file.isDirectory();
+            }
+        }).toArray(FontHandle[]::new);
     }
 
     @Override
@@ -123,14 +133,11 @@ public class Lwjgl3Toolkit implements Toolkit {
             WindowsNatives.open(path);
         }
         else if (SharedLibraryLoader.isLinux) {
-            XDGOpen.process(null, path);
+            LinuxNatives.open(path);
             return true;
         }
         else if (SharedLibraryLoader.isMac) {
-            try {
-                new ProcessBuilder().command("open", path).start();
-                return true;
-            } catch (IOException ignored) {}
+            MacOSXNatives.open(path);
         }
         return false;
     }

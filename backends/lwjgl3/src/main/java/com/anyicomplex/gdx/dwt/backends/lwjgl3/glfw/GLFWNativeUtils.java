@@ -6,20 +6,13 @@ import com.badlogic.gdx.utils.SharedLibraryLoader;
 import org.lwjgl.glfw.GLFWNativeWin32;
 import org.lwjgl.glfw.GLFWNativeX11;
 
-import static org.lwjgl.system.windows.User32.*;
-
 
 public class GLFWNativeUtils {
 
     public static void glfwHideWindowButtons(long window, boolean maximize, boolean minimize) {
         if (SharedLibraryLoader.isWindows) {
             long hWnd = GLFWNativeWin32.glfwGetWin32Window(window);
-            long windowLongPtr = GetWindowLongPtr(hWnd, GWL_STYLE);
-            if (maximize) windowLongPtr = windowLongPtr & ~WS_MAXIMIZEBOX;
-            else windowLongPtr = windowLongPtr | WS_MAXIMIZEBOX;
-            if (minimize) windowLongPtr = windowLongPtr & ~WS_MINIMIZEBOX;
-            else windowLongPtr = windowLongPtr | WS_MINIMIZEBOX;
-            SetWindowLongPtr(hWnd, GWL_STYLE, windowLongPtr);
+            WindowsNatives.hideWindowButtons(hWnd, maximize, minimize);
         }
         else if (SharedLibraryLoader.isLinux) {
             long display = GLFWNativeX11.glfwGetX11Display();

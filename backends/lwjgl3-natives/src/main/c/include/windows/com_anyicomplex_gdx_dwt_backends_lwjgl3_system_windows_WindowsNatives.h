@@ -9,18 +9,18 @@ extern "C" {
 #endif
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives
- * Method:    nsystemFonts
+ * Method:    getSystemFonts
  * Signature: ()[Lcom/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3FontHandle;
  */
-JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_nsystemFonts
+JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_getSystemFonts
   (JNIEnv *, jclass);
 
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives
- * Method:    ngetWin32DefaultFont
+ * Method:    getDefaultFont
  * Signature: ()Lcom/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3FontHandle;
  */
-JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_ngetWin32DefaultFont
+JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_getDefaultFont
   (JNIEnv *, jclass);
 
 /*

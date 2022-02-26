@@ -1,27 +1,16 @@
 package com.anyicomplex.gdx.dwt.backends.lwjgl3.system.linux;
 
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.toolkit.Lwjgl3FontHandle;
-import com.anyicomplex.gdx.dwt.toolkit.FontHandle;
+import com.anyicomplex.xdg.utils.XDGOpen;
+import com.anyicomplex.xdg.utils.XDGUtils;
 
 public class LinuxNatives {
 
-    public static FontHandle[] systemFonts() {
-        return nsystemFonts();
-    }
+    public static native Lwjgl3FontHandle[] getSystemFonts();
 
-    public static native Lwjgl3FontHandle[] nsystemFonts();
+    public static native Lwjgl3FontHandle getGtkDefaultFont();
 
-    public static void hideXWindowButtons(long display, long w, boolean maximize, boolean minimize) {
-        nhideXWindowButtons(display, w, maximize ? 1 : 0, minimize ? 1 : 0);
-    }
-
-    public static native void nhideXWindowButtons(long display, long w, int maximize, int minimize);
-
-    public static FontHandle getGtkDefaultFont() {
-        return ngetGtkDefaultFont();
-    }
-
-    public static native Lwjgl3FontHandle ngetGtkDefaultFont();
+    public static native void hideXWindowButtons(long display, long w, boolean maximize, boolean minimize);
 
     public static native void grabPointer(long display, long w);
 
@@ -34,5 +23,10 @@ public class LinuxNatives {
     public static native void setXWindowIsTooltip(long display, long w, long parent);
 
     public static native void setXWindowIsPopup(long display, long w, long parent);
+
+    public static void open(String path) {
+        XDGUtils.load();
+        XDGOpen.process(null, path);
+    }
 
 }

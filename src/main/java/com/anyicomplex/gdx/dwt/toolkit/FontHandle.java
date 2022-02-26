@@ -2,20 +2,22 @@ package com.anyicomplex.gdx.dwt.toolkit;
 
 import com.badlogic.gdx.files.FileHandle;
 
+import java.util.Objects;
+
 public class FontHandle {
 
     private final String style;
     private final String family;
     private final FileHandle file;
     private final String name;
-    private final int spacing;
+    private final boolean mono;
 
-    public FontHandle(String style, String family, FileHandle file, String name, int spacing) {
+    public FontHandle(String style, String family, FileHandle file, String name, boolean mono) {
         this.style = style;
         this.family = family;
         this.file = file;
         this.name = name;
-        this.spacing = spacing;
+        this.mono = mono;
     }
 
     public String style() {
@@ -34,12 +36,21 @@ public class FontHandle {
         return name;
     }
 
-    public int spacing() {
-        return spacing;
+    public boolean mono() {
+        return mono;
     }
 
-    public boolean mono() {
-        return spacing() == 100;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FontHandle)) return false;
+        FontHandle handle = (FontHandle) o;
+        return mono == handle.mono && Objects.equals(style, handle.style) && Objects.equals(family, handle.family) && Objects.equals(file, handle.file) && Objects.equals(name, handle.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(style, family, file, name, mono);
     }
 
 }

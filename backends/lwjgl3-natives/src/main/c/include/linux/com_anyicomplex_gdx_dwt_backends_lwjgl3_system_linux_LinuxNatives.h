@@ -9,19 +9,27 @@ extern "C" {
 #endif
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
- * Method:    nsystemFonts
+ * Method:    getSystemFonts
  * Signature: ()[Lcom/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3FontHandle;
  */
-JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_nsystemFonts
+JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_getSystemFonts
   (JNIEnv *, jclass);
 
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
- * Method:    nhideXWindowButtons
- * Signature: (JJII)V
+ * Method:    getGtkDefaultFont
+ * Signature: ()Lcom/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3FontHandle;
  */
-JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_nhideXWindowButtons
-  (JNIEnv *, jclass, jlong, jlong, jint, jint);
+JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_getGtkDefaultFont
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
+ * Method:    hideXWindowButtons
+ * Signature: (JJZZ)V
+ */
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_hideXWindowButtons
+  (JNIEnv *, jclass, jlong, jlong, jboolean, jboolean);
 
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
@@ -38,14 +46,6 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux
  */
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_ungrabPointer
   (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
- * Method:    ngetGtkDefaultFont
- * Signature: ()Lcom/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3FontHandle;
- */
-JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_ngetGtkDefaultFont
-  (JNIEnv *, jclass);
 
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
