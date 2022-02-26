@@ -1,4 +1,5 @@
 #include "com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives.h"
+#include "jni_etc.h"
 #include <fontconfig/fontconfig.h>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
@@ -27,7 +28,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
       FcFini();
       return NULL;
     }
-    jclass jfontcls = (*env)->FindClass(env, "com/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3FontHandle");
+    jclass jfontcls = (*env)->FindClass(env, LWJGL3_FONT_HANDLE_CLASS_NAME);
     if (jfontcls == NULL) {
       FcObjectSetDestroy(os);
       FcPatternDestroy(pat);
@@ -43,7 +44,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
       FcFini();
       return NULL;
     }
-    jmethodID jfontinit = (*env)->GetMethodID(env, jfontcls, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V");
+    jmethodID jfontinit = (*env)->GetMethodID(env, jfontcls, CLASS_INIT_NAME, LWJGL3_FONT_HANDLE_INIT_SIGNATURE);
     if (jfontinit == NULL) {
       FcObjectSetDestroy(os);
       FcPatternDestroy(pat);
@@ -119,9 +120,9 @@ JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_li
     FcPatternDestroy(pat);
     FcConfigDestroy(config);
     FcFini();
-    jclass jfontcls = (*env)->FindClass(env, "com/anyicomplex/gdx/dwt/backends/lwjgl3/toolkit/Lwjgl3FontHandle");
+    jclass jfontcls = (*env)->FindClass(env, LWJGL3_FONT_HANDLE_CLASS_NAME);
     if (jfontcls == NULL) return NULL;
-    jmethodID jfontinit = (*env)->GetMethodID(env, jfontcls, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V");
+    jmethodID jfontinit = (*env)->GetMethodID(env, jfontcls, CLASS_INIT_NAME, LWJGL3_FONT_HANDLE_INIT_SIGNATURE);
     if (jfontcls == NULL) return NULL;
     jobject jfont = (*env)->NewObject(env, jfontcls, jfontinit, jstyle, jfamily, jfile, jfullname, mono);
     if (jstyle != NULL) (*env)->DeleteLocalRef(env, jstyle);
