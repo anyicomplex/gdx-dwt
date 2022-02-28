@@ -7,20 +7,8 @@
 extern "C" {
 #endif
 
-#define STARTS_WITH(string_to_check, prefix) (strncmp(string_to_check, prefix, ((sizeof(prefix) / sizeof(prefix[0])) - 1)) ? 0 : ((sizeof(prefix) / sizeof(prefix[0])) - 1))
-#define STARTS_WITH_W(string_to_check, prefix) (wcsncmp(string_to_check, prefix, ((sizeof(prefix) / sizeof(prefix[0])) - 1)) ? 0 : ((sizeof(prefix) / sizeof(prefix[0])) - 1))
-
 #define FONT_REGISTRY_KEY_NAME_W L"Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts"
-
-#define FONT_DIR_W L"C:\\Windows\\Fonts\\"
-#define WINE_FONT_DIR_W L"Z:\\usr\\share\\wine\\fonts\\"
-#define USER_FONT_DIR_PREFIX_W L"C:\\Users\\"
-#define USER_FONT_DIR_SUFFIX_W L"\\AppData\\Local\\Microsoft\\Windows\\Fonts\\"
-
-BOOL FileExists(LPCWSTR szPath) {
-  DWORD dwAttrib = GetFileAttributesW(szPath);
-  return (dwAttrib != INVALID_FILE_ATTRIBUTES &&  !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-}
+#define FONT_DIR_SUFFIX_W L"\\Fonts\\"
 
 typedef struct _COUNTFONTPARAMS {
   HDC hDC;
@@ -53,13 +41,49 @@ typedef struct _ENUMFONTPARAMS {
   DWORD ckeys;
 } ENUMFONTPARAMS;
 
-BOOL wkeyMatch(WCHAR **wkeys, DWORD ckeys, WCHAR *wcsmatch, WCHAR **pwkey) {
+BOOL FontDataMatchSystemFontsW(LPVOID fontData, DWORD dataSize, WCHAR **wfile) {
+  WCHAR windir[MAX_PATH];
+  GetWindowsDirectoryW(&windir, MAX_PATH);
+  WCHAR fontdir[wcslen(windir) + wcslen(FONT_DIR_SUFFIX_W) + 1];
+  wcscpy(fontdir, windir);
+  wcscat(fontdir, FONT_DIR_SUFFIX_W);
+  WCHAR match[wcslen(fontdir) + 2];
+  wcscpy(match, fontdir);
+  wcscat(match, L"*");
+  HANDLE hFind = INVALID_HANDLE_VALUE;
+  WIN32_FIND_DATAW ffd;
+  hFind = FindFirstFileW(&match, &ffd);
+  if (hFind != INVALID_HANDLE_VALUE) {
+    while (FindNextFileW(hFind, &ffd) != 0) {
+      if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && ffd.nFileSizeLow == dataSize) {
+        WCHAR wfilepath[wcslen(fontdir) + wcslen(ffd.cFileName) + 1];
+        wcscpy(wfilepath, fontdir);
+        wcscat(wfilepath, ffd.cFileName);
+        FILE *file = _wfopen(wfilepath, L"rb");
+        void *fileData = malloc(dataSize);
+        fread(fileData, 1, dataSize, file);
+        fclose(file);
+        if (!memcmp(fontData, fileData, dataSize)) {
+          *wfile = wfilepath;
+          free(fileData);
+          FindClose(hFind);
+          return TRUE;
+        }
+        free(fileData);
+      }
+    }
+    FindClose(hFind);
+  }
+  return FALSE;
+}
+
+BOOL WKeyMatch(WCHAR **wkeys, DWORD ckeys, WCHAR *wcsmatch, WCHAR **pwkey) {
   if (wkeys) {
     WCHAR *wkey = NULL;
     for (DWORD i = 0; i < ckeys; i ++) {
       if (wkeys[i]) {
         if (wcslen(wkeys[i]) >= wcslen(wcsmatch)) {
-          if (wcsncmp(wkeys[i], wcsmatch, wcslen(wcsmatch))) {
+          if (!wcsncmp(wkeys[i], wcsmatch, wcslen(wcsmatch))) {
             if (wkey) {
               if (wcslen(wkey) > wcslen(wkeys[i])) wkey = wkeys[i];
             }
@@ -72,9 +96,8 @@ BOOL wkeyMatch(WCHAR **wkeys, DWORD ckeys, WCHAR *wcsmatch, WCHAR **pwkey) {
       *pwkey = wkey;
       return TRUE;
     }
-    else return FALSE;
   }
-  else return FALSE;
+  return FALSE;
 }
 
 BOOL CALLBACK EnumFontSubproc(const ENUMLOGFONTEXW *lpelfe, const NEWTEXTMETRICEXW *lpntme, DWORD FontType, LPARAM lParam) {
@@ -98,40 +121,38 @@ BOOL CALLBACK EnumFontSubproc(const ENUMLOGFONTEXW *lpelfe, const NEWTEXTMETRICE
   DWORD ckeys = params->ckeys;
   WCHAR *wkey;
   HKEY hKeyFont = params->hKeyFont;
-  if (wkeyMatch(wkeys, ckeys, wfamily, &wkey)) {
+  if (WKeyMatch(wkeys, ckeys, wfullname, &wkey) || WKeyMatch(wkeys, ckeys, wfamily, &wkey)) {
     if (RegQueryValueExW(hKeyFont, wkey, 0, NULL, NULL, &wfilesize) == ERROR_SUCCESS) {
-      WCHAR buf[wfilesize / sizeof(WCHAR)];
+      WCHAR buf[wfilesize / sizeof(WCHAR) + 1];
       if (RegQueryValueExW(hKeyFont, wkey, 0, NULL, (LPBYTE)buf, &wfilesize) == ERROR_SUCCESS) {
-        WCHAR *wfile = malloc((wcslen(FONT_DIR_W) + wcslen(buf)) * sizeof(WCHAR) + 1);
+        WCHAR windir[MAX_PATH];
+        GetWindowsDirectoryW(&windir, MAX_PATH);
+        WCHAR fontdir[wcslen(windir) + wcslen(FONT_DIR_SUFFIX_W) + 1];
+        wcscpy(fontdir, windir);
+        wcscat(fontdir, FONT_DIR_SUFFIX_W);
+        WCHAR *wfile = calloc(wcslen(fontdir) + wcslen(buf) + 1, sizeof(WCHAR));
         if(PathIsRelativeW(buf)) {
-          wcscpy(wfile, FONT_DIR_W);
+          wcscpy(wfile, fontdir);
           wcscat(wfile, buf);
-          if (!FileExists(wfile)) {
-            free(wfile);
-            wfile = malloc((wcslen(WINE_FONT_DIR_W) + wcslen(buf)) * sizeof(WCHAR) + 1);
-            wcscpy(wfile, WINE_FONT_DIR_W);
-            wcscat(wfile, buf);
-            if (!FileExists(wfile)) {
-              DWORD usernamesize;
-              if (GetUserNameW(NULL, &usernamesize)) {
-                WCHAR username[usernamesize / sizeof(WCHAR)];
-                if (GetUserNameW(username, &usernamesize)) {
-                  free(wfile);
-                  wfile = malloc((wcslen(USER_FONT_DIR_PREFIX_W) + wcslen(username) + wcslen(USER_FONT_DIR_SUFFIX_W) + wcslen(buf)) * sizeof(WCHAR) + 1);
-                  wcscpy(wfile, USER_FONT_DIR_PREFIX_W);
-                  wcscpy(wfile, username);
-                  wcscpy(wfile, USER_FONT_DIR_SUFFIX_W);
-                  wcscat(wfile, buf);
-                }
-              }
-            }
-          }
         }
         else wcscpy(wfile, buf);
-        if (FileExists(wfile)) jfile = (*env)->NewString(env, wfile, wcslen(wfile));
+        jfile = (*env)->NewString(env, wfile, wcslen(wfile));
         free(wfile);
       }
     }
+  }
+  else {
+    HDC hDC = params->hDC;
+    SelectObject(hDC, CreateFontIndirectW(&(lpelfe->elfLogFont)));
+    DWORD dataSize = GetFontData(hDC, 0, 0, NULL, 0);
+      if (dataSize != GDI_ERROR) {
+        void *data = malloc(dataSize);
+        if (GetFontData(hDC, 0, 0, data, dataSize) == dataSize) {
+          WCHAR *wfile;
+          if (FontDataMatchSystemFontsW(data, dataSize, &wfile)) jfile = (*env)->NewString(env, wfile, wcslen(wfile));
+        }
+        free(data);
+      }
   }
   jobject jfont = (*env)->NewObject(env, jfontcls, jfontinit, jstyle, jfamily, jfile, jfullname, mono);
   if (jfont != NULL) (*env)->SetObjectArrayElement(env, jfonts, *ifont, jfont);
@@ -160,7 +181,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
     LOGFONTW lf;
     memset(&lf, 0, sizeof(lf));
     lf.lfCharSet = DEFAULT_CHARSET;
-    HDC hDC = GetDC(NULL);
+    HDC hDC = CreateCompatibleDC(NULL);
     jsize nfont = 0;
     jsize *pnfont = &nfont;
     COUNTFONTPARAMS cparams = {
@@ -180,8 +201,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
         if (cValues) {
           WCHAR **wkeys = calloc(cValues, sizeof(WCHAR *));
           for (DWORD i = 0; i < cValues; i ++) {
+            DWORD cchValueName = cbMaxValueNameLen + 1;
             WCHAR valueName[cbMaxValueNameLen];
-            DWORD cchValueName = cbMaxValueNameLen;
             DWORD type;
             if (RegEnumValueW(hKeyFont, i, valueName, &cchValueName, NULL, &type, NULL, NULL) == ERROR_SUCCESS) {
               if (type == REG_SZ) {
@@ -189,7 +210,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
                 wcscpy(wkey, valueName);
                 wkeys[i] = wkey;
               }
-              else wkeys[i] = NULL;
             }
           }
           ENUMFONTPARAMS eparams = {
@@ -215,78 +235,98 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
   }
 
 typedef struct _GETDEFAULTFONTPARAMS {
+  HDC hDC;
   JNIEnv *env;
   jclass jfontcls;
   jobjectArray jfonts;
   jmethodID jfontinit;
+  LOGFONTW targetlf;
   HKEY hKeyFont;
   WCHAR **wkeys;
   DWORD ckeys;
+  BOOL *done;
 } GETDEFAULTFONTPARAMS;
 
-BOOL CALLBACK GetDefaultFontProc(const ENUMLOGFONTEXW *lpelfe, const NEWTEXTMETRICEXW *lpntme, DWORD FontType, LPARAM lParam) {
+BOOL CALLBACK GetDefaultFontSubproc(const ENUMLOGFONTEXW *lpelfe, const NEWTEXTMETRICEXW *lpntme, DWORD FontType, LPARAM lParam) {
   GETDEFAULTFONTPARAMS *params = (GETDEFAULTFONTPARAMS *)lParam;
-  jobjectArray jfonts = params->jfonts;
-  JNIEnv *env = params->env;
-  if ((*env)->GetObjectArrayElement(env, jfonts, 0) != NULL) return TRUE;
-  jclass jfontcls = params->jfontcls;
-  jmethodID jfontinit = params->jfontinit;
-  const WCHAR *wstyle = lpelfe->elfStyle;
-   jstring jstyle = (*env)->NewString(env, wstyle, wcslen(wstyle));
-  const WCHAR *wfullname = lpelfe->elfFullName;
-  jstring jfullname = (*env)->NewString(env, wfullname, wcslen(wfullname));
-  LOGFONTW lf = lpelfe->elfLogFont;
-  WCHAR *wfamily = lf.lfFaceName;
-  jstring jfamily = (*env)->NewString(env, wfamily, wcslen(wfamily));
-  jboolean mono = ((lf.lfPitchAndFamily & FIXED_PITCH) == FIXED_PITCH) ? JNI_TRUE : JNI_FALSE;
-  DWORD wfilesize;
-  jstring jfile = NULL;
-  WCHAR **wkeys = params->wkeys;
-  DWORD ckeys = params->ckeys;
-  WCHAR *wkey;
-  HKEY hKeyFont = params->hKeyFont;
-  if (wkeyMatch(wkeys, ckeys, wfamily, &wkey)) {
-    if (RegQueryValueExW(hKeyFont, wkey, 0, NULL, NULL, &wfilesize) == ERROR_SUCCESS) {
-      WCHAR buf[wfilesize / sizeof(WCHAR)];
-      if (RegQueryValueExW(hKeyFont, wkey, 0, NULL, (LPBYTE)buf, &wfilesize) == ERROR_SUCCESS) {
-        WCHAR *wfile = malloc((wcslen(FONT_DIR_W) + wcslen(buf)) * sizeof(WCHAR) + 1);
-        if(PathIsRelativeW(buf)) {
-          wcscpy(wfile, FONT_DIR_W);
-          wcscat(wfile, buf);
-          if (!FileExists(wfile)) {
-            free(wfile);
-            wfile = malloc((wcslen(WINE_FONT_DIR_W) + wcslen(buf)) * sizeof(WCHAR) + 1);
-            wcscpy(wfile, WINE_FONT_DIR_W);
-            wcscat(wfile, buf);
-            if (!FileExists(wfile)) {
-              DWORD usernamesize;
-              if (GetUserNameW(NULL, &usernamesize)) {
-                WCHAR username[usernamesize / sizeof(WCHAR)];
-                if (GetUserNameW(username, &usernamesize)) {
+  if (*(params->done)) return TRUE;
+  LOGFONTW targetlf = params->targetlf;
+  HDC hDC = params->hDC;
+  SelectObject(hDC, CreateFontIndirectW(&targetlf));
+  DWORD data1Size = GetFontData(hDC, 0, 0, NULL, 0);
+  if (data1Size != GDI_ERROR) {
+    void *data1 = malloc(data1Size);
+    if (GetFontData(hDC, 0, 0, data1, data1Size) == data1Size) {
+      SelectObject(hDC, CreateFontIndirectW(&(lpelfe->elfLogFont)));
+      DWORD data2Size = GetFontData(hDC, 0, 0, NULL, 0);
+      if (data1Size == data2Size) {
+        void *data2 = malloc(data2Size);
+        if (GetFontData(hDC, 0, 0, data2, data2Size) == data2Size) {
+          if (!memcmp(data1, data2, data1Size)) {
+            JNIEnv *env = params->env;
+            jclass jfontcls = params->jfontcls;
+            jobjectArray jfonts = params->jfonts;
+            jmethodID jfontinit = params->jfontinit;
+            const WCHAR *wstyle = lpelfe->elfStyle;
+            jstring jstyle = (*env)->NewString(env, wstyle, wcslen(wstyle));
+            const WCHAR *wfullname = lpelfe->elfFullName;
+            jstring jfullname = (*env)->NewString(env, wfullname, wcslen(wfullname));
+            LOGFONTW lf = lpelfe->elfLogFont;
+            WCHAR *wfamily = lf.lfFaceName;
+            jstring jfamily = (*env)->NewString(env, wfamily, wcslen(wfamily));
+            jboolean mono = ((lf.lfPitchAndFamily & FIXED_PITCH) == FIXED_PITCH) ? JNI_TRUE : JNI_FALSE;
+            DWORD wfilesize;
+            jstring jfile = NULL;
+            WCHAR **wkeys = params->wkeys;
+            DWORD ckeys = params->ckeys;
+            WCHAR *wkey;
+            HKEY hKeyFont = params->hKeyFont;
+            if (WKeyMatch(wkeys, ckeys, wfullname, &wkey) || WKeyMatch(wkeys, ckeys, wfamily, &wkey)) {
+              if (RegQueryValueExW(hKeyFont, wkey, 0, NULL, NULL, &wfilesize) == ERROR_SUCCESS) {
+                WCHAR buf[wfilesize / sizeof(WCHAR) + 1];
+                if (RegQueryValueExW(hKeyFont, wkey, 0, NULL, (LPBYTE)buf, &wfilesize) == ERROR_SUCCESS) {
+                  WCHAR windir[MAX_PATH];
+                  GetWindowsDirectoryW(&windir, MAX_PATH);
+                  WCHAR fontdir[wcslen(windir) + wcslen(FONT_DIR_SUFFIX_W) + 1];
+                  wcscpy(fontdir, windir);
+                  wcscat(fontdir, FONT_DIR_SUFFIX_W);
+                  WCHAR *wfile = calloc(wcslen(fontdir) + wcslen(buf) + 1, sizeof(WCHAR));
+                  if (PathIsRelativeW(buf)) {
+                    wcscpy(wfile, fontdir);
+                    wcscat(wfile, buf);
+                  }
+                  else wcscpy(wfile, buf);
+                  jfile = (*env)->NewString(env, wfile, wcslen(wfile));
                   free(wfile);
-                  wfile = malloc((wcslen(USER_FONT_DIR_PREFIX_W) + wcslen(username) + wcslen(USER_FONT_DIR_SUFFIX_W) + wcslen(buf)) * sizeof(WCHAR) + 1);
-                  wcscpy(wfile, USER_FONT_DIR_PREFIX_W);
-                  wcscpy(wfile, username);
-                  wcscpy(wfile, USER_FONT_DIR_SUFFIX_W);
-                  wcscat(wfile, buf);
                 }
               }
             }
+            else {
+              WCHAR *wfile;
+              if (FontDataMatchSystemFontsW(data1, data1Size, &wfile)) jfile = (*env)->NewString(env, wfile, wcslen(wfile));
+            }
+            jobject jfont = (*env)->NewObject(env, jfontcls, jfontinit, jstyle, jfamily, jfile, jfullname, mono);
+            if (jfont != NULL) (*env)->SetObjectArrayElement(env, jfonts, 0, jfont);
+            (*env)->DeleteLocalRef(env, jstyle);
+            (*env)->DeleteLocalRef(env, jfullname);
+            (*env)->DeleteLocalRef(env, jfamily);
+            (*env)->DeleteLocalRef(env, jfont);
+            if (jfile != NULL) (*env)->DeleteLocalRef(env, jfile);
+            *(params->done) = TRUE;
           }
         }
-        else wcscpy(wfile, buf);
-        if (FileExists(wfile)) jfile = (*env)->NewString(env, wfile, wcslen(wfile));
-        free(wfile);
+        free(data2);
       }
     }
+    free(data1);
   }
-  jobject jfont = (*env)->NewObject(env, jfontcls, jfontinit, jstyle, jfamily, jfile, jfullname, mono);
-  if (jfont != NULL) (*env)->SetObjectArrayElement(env, jfonts, 0, jfont);
-  (*env)->DeleteLocalRef(env, jstyle);
-  (*env)->DeleteLocalRef(env, jfullname);
-  (*env)->DeleteLocalRef(env, jfamily);
-  (*env)->DeleteLocalRef(env, jfont);
-  if (jfile != NULL) (*env)->DeleteLocalRef(env, jfile);
+  return TRUE;
+}
+
+BOOL CALLBACK GetDefaultFontProc(const ENUMLOGFONTEXW *lpelfe, const NEWTEXTMETRICEXW *lpntme, DWORD FontType, LPARAM lParam) {
+  GETDEFAULTFONTPARAMS *params = (GETDEFAULTFONTPARAMS *)lParam;
+  LOGFONTW lf = lpelfe->elfLogFont;
+  EnumFontFamiliesExW(params->hDC, &lf, (FONTENUMPROCW)(GetDefaultFontSubproc), (LPARAM)(params), 0);
   return TRUE;
 }
 
@@ -296,20 +336,13 @@ JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_wi
     if (jfontcls == NULL) return NULL;
     jmethodID jfontinit = (*env)->GetMethodID(env, jfontcls, CLASS_INIT_NAME, LWJGL3_FONT_HANDLE_INIT_SIGNATURE);
     if (jfontinit == NULL) return NULL;
-    HDC hDC = GetDC(NULL);
-    LOGFONTW lf;
     NONCLIENTMETRICSW metrics = {
       .cbSize = sizeof(NONCLIENTMETRICSW)
     };
-    if (SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICSW), (PVOID)(&metrics), 0)) {
-      lf = metrics.lfMessageFont;
-      if (EnumFontFamiliesExW(hDC, &lf, NULL, NULL, 0) != ERROR_SUCCESS) {
-        GetObjectW(GetStockObject(SYSTEM_FONT), sizeof(LOGFONT), &lf); 
-      }
-    }
-    else return NULL;
+    if (!SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICSW), (PVOID)(&metrics), 0)) return NULL;
     jobjectArray jfonts = (*env)->NewObjectArray(env, 1, jfontcls, NULL);
     if (jfonts == NULL) return NULL;
+    HDC hDC = CreateCompatibleDC(NULL);
     HKEY hKeyFont;
     if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, FONT_REGISTRY_KEY_NAME_W, 0, KEY_READ, &hKeyFont) == ERROR_SUCCESS) {
       DWORD cValues;
@@ -318,8 +351,8 @@ JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_wi
         if (cValues) {
           WCHAR **wkeys = calloc(cValues, sizeof(WCHAR *));
           for (DWORD i = 0; i < cValues; i ++) {
+            DWORD cchValueName = cbMaxValueNameLen + 1;
             WCHAR valueName[cbMaxValueNameLen];
-            DWORD cchValueName = cbMaxValueNameLen;
             DWORD type;
             if (RegEnumValueW(hKeyFont, i, valueName, &cchValueName, NULL, &type, NULL, NULL) == ERROR_SUCCESS) {
               if (type == REG_SZ) {
@@ -327,19 +360,26 @@ JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_wi
                 wcscpy(wkey, valueName);
                 wkeys[i] = wkey;
               }
-              else wkeys[i] = NULL;
             }
           }
+          BOOL done = FALSE;
+          BOOL *pdone = &done;
           GETDEFAULTFONTPARAMS params = {
+            .hDC = hDC, 
             .env = env, 
             .jfontcls = jfontcls, 
-            .jfonts = jfonts,
+            .jfonts = jfonts, 
             .jfontinit = jfontinit, 
+            .targetlf = metrics.lfMessageFont, 
             .hKeyFont = hKeyFont, 
+            .done = pdone, 
             .wkeys = wkeys, 
             .ckeys = cValues
           };
-          EnumFontFamiliesExW(hDC, &lf, (FONTENUMPROCW)(GetDefaultFontProc), (LPARAM)&params, 0);
+          LOGFONTW lf;
+          memcpy(&lf, &params.targetlf, sizeof(lf));
+          memset(&lf.lfFaceName, 0, sizeof(lf.lfFaceName));
+          EnumFontFamiliesExW(hDC, &lf, (FONTENUMPROCW)(GetDefaultFontProc), (LPARAM)(&params), 0);
           RegCloseKey(hKeyFont);
           free(wkeys);
         }

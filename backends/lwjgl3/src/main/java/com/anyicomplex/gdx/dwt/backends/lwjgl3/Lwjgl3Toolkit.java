@@ -73,16 +73,17 @@ public class Lwjgl3Toolkit implements Toolkit {
 
     @Override
     public FontHandle defaultFont() {
+        FontHandle result = null;
         if (SharedLibraryLoader.isWindows) {
-            return WindowsNatives.getDefaultFont();
+            result = WindowsNatives.getDefaultFont();
         }
         else if (SharedLibraryLoader.isLinux) {
-            return LinuxNatives.getGtkDefaultFont();
+            result = LinuxNatives.getGtkDefaultFont();
         }
         else if (SharedLibraryLoader.isMac) {
 
         }
-        return null;
+        return result == null ? null : (result.file() == null ? null : result);
     }
 
     @Override
