@@ -6,6 +6,4 @@
 /backends/lwjgl3-natives/build/
 /backends/build/
 /backends/lwjgl3/src/test/java/
-/backends/lwjgl3-natives/src/main/resources/
-/backends/lwjgl3-natives/src/main/c/build-linux-x64-gcc.sh
-/backends/lwjgl3-natives/src/main/c/build-linux-x64-mingw.sh
+/backends/lwjgl3-natives/src/main/c/build.properties

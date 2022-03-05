@@ -3,7 +3,6 @@ package com.anyicomplex.gdx.dwt.backends.lwjgl3;
 import com.anyicomplex.gdx.dwt.Gdwt;
 import com.anyicomplex.gdx.dwt.Toolkit;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Shell;
-import com.anyicomplex.gdx.dwt.backends.lwjgl3.glfw.GLFWNativeUtils;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.linux.LinuxNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.macosx.MacOSXNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.windows.WindowsNatives;
@@ -31,16 +30,6 @@ public class Lwjgl3Toolkit implements Toolkit {
     @Override
     public Shell rootShell() {
         return rootShell;
-    }
-
-    @Override
-    public void grabPointer(Shell shell) {
-        GLFWNativeUtils.glfwGrabPointer(((Lwjgl3Shell)shell).getWindow().getWindowHandle());
-    }
-
-    @Override
-    public void ungrabPointer() {
-        GLFWNativeUtils.glfwUngrabPointer();
     }
 
     public Lwjgl3Toolkit(ApplicationListener listener, ShellConfiguration config) {

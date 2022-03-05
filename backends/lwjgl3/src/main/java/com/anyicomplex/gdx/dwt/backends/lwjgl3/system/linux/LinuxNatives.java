@@ -12,10 +12,6 @@ public class LinuxNatives {
 
     public static native void hideXWindowButtons(long display, long w, boolean maximize, boolean minimize);
 
-    public static native void grabPointer(long display, long w);
-
-    public static native void ungrabPointer(long display);
-
     public static native void setXWindowIsDialog(long display, long w, long parent);
 
     public static native void setXWindowIsNormal(long display, long w);
@@ -28,5 +24,9 @@ public class LinuxNatives {
         XDGUtils.load();
         XDGOpen.process(null, path);
     }
+
+    public static native int XGrabPointer(long display, long w);
+
+    public static native int XUngrabPointer(long display);
 
 }

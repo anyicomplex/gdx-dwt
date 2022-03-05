@@ -41,7 +41,7 @@ typedef struct _ENUMFONTPARAMS {
   DWORD ckeys;
 } ENUMFONTPARAMS;
 
-BOOL FontDataMatchSystemFontsW(LPVOID fontData, DWORD dataSize, WCHAR **wfile) {
+BOOL FontDataMatchSystemFontsW(const LPVOID fontData, const DWORD dataSize, WCHAR **wfile) {
   WCHAR windir[MAX_PATH];
   GetWindowsDirectoryW(&windir, MAX_PATH);
   WCHAR fontdir[wcslen(windir) + wcslen(FONT_DIR_SUFFIX_W) + 1];
@@ -77,19 +77,16 @@ BOOL FontDataMatchSystemFontsW(LPVOID fontData, DWORD dataSize, WCHAR **wfile) {
   return FALSE;
 }
 
-BOOL WKeyMatch(WCHAR **wkeys, DWORD ckeys, WCHAR *wcsmatch, WCHAR **pwkey) {
+BOOL KeyMatchW(const WCHAR **wkeys, const DWORD ckeys, const WCHAR *wcsmatch, WCHAR **pwkey) {
   if (wkeys) {
     WCHAR *wkey = NULL;
+    size_t wcsmatchlen = wcslen(wcsmatch);
     for (DWORD i = 0; i < ckeys; i ++) {
-      if (wkeys[i]) {
-        if (wcslen(wkeys[i]) >= wcslen(wcsmatch)) {
-          if (!wcsncmp(wkeys[i], wcsmatch, wcslen(wcsmatch))) {
-            if (wkey) {
-              if (wcslen(wkey) > wcslen(wkeys[i])) wkey = wkeys[i];
-            }
-            else wkey = wkeys[i];
-          }
-        }
+      WCHAR *wkeysi = wkeys[i];
+      size_t wkeysilen = wcslen(wkeysi);
+      if (wkeysi && wkeysilen >=  wcsmatchlen && !wcsncmp(wkeysi, wcsmatch, wcsmatchlen)) {
+        if (!wkey) wkey = wkeysi;
+        else if (wcslen(wkey) > wkeysilen) wkey = wkeysi;
       }
     }
     if (wkey) {
@@ -121,7 +118,7 @@ BOOL CALLBACK EnumFontSubproc(const ENUMLOGFONTEXW *lpelfe, const NEWTEXTMETRICE
   DWORD ckeys = params->ckeys;
   WCHAR *wkey;
   HKEY hKeyFont = params->hKeyFont;
-  if (WKeyMatch(wkeys, ckeys, wfullname, &wkey) || WKeyMatch(wkeys, ckeys, wfamily, &wkey)) {
+  if (KeyMatchW(wkeys, ckeys, wfullname, &wkey) || KeyMatchW(wkeys, ckeys, wfamily, &wkey)) {
     if (RegQueryValueExW(hKeyFont, wkey, 0, NULL, NULL, &wfilesize) == ERROR_SUCCESS) {
       WCHAR buf[wfilesize / sizeof(WCHAR) + 1];
       if (RegQueryValueExW(hKeyFont, wkey, 0, NULL, (LPBYTE)buf, &wfilesize) == ERROR_SUCCESS) {
@@ -281,7 +278,7 @@ BOOL CALLBACK GetDefaultFontSubproc(const ENUMLOGFONTEXW *lpelfe, const NEWTEXTM
             DWORD ckeys = params->ckeys;
             WCHAR *wkey;
             HKEY hKeyFont = params->hKeyFont;
-            if (WKeyMatch(wkeys, ckeys, wfullname, &wkey) || WKeyMatch(wkeys, ckeys, wfamily, &wkey)) {
+            if (KeyMatchW(wkeys, ckeys, wfullname, &wkey) || KeyMatchW(wkeys, ckeys, wfamily, &wkey)) {
               if (RegQueryValueExW(hKeyFont, wkey, 0, NULL, NULL, &wfilesize) == ERROR_SUCCESS) {
                 WCHAR buf[wfilesize / sizeof(WCHAR) + 1];
                 if (RegQueryValueExW(hKeyFont, wkey, 0, NULL, (LPBYTE)buf, &wfilesize) == ERROR_SUCCESS) {
@@ -388,6 +385,21 @@ JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_wi
     (*env)->DeleteLocalRef(env, jfontcls);
     ReleaseDC(NULL, hDC);
     return (*env)->GetObjectArrayElement(env, jfonts, 0);
+  }
+
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_grabPointer
+  (JNIEnv *env, jclass clazz, jlong hWnd) {
+    //SetCapture(hWnd);
+  }
+
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_ungrabPointer
+  (JNIEnv *env, jclass clazz) {
+    //ReleaseCapture();
+  }
+
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_enableWindow
+  (JNIEnv *env, jclass clazz, jlong hWnd, jboolean jenable) {
+    EnableWindow(hWnd, jenable);
   }
 
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_open

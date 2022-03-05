@@ -33,22 +33,6 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux
 
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
- * Method:    grabPointer
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_grabPointer
-  (JNIEnv *, jclass, jlong, jlong);
-
-/*
- * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
- * Method:    ungrabPointer
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_ungrabPointer
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
  * Method:    setXWindowIsDialog
  * Signature: (JJJ)V
  */
@@ -78,6 +62,22 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux
  */
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_setXWindowIsPopup
   (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
+ * Method:    XGrabPointer
+ * Signature: (JJ)I
+ */
+JNIEXPORT jint JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_XGrabPointer
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives
+ * Method:    XUngrabPointer
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_XUngrabPointer
+  (JNIEnv *, jclass, jlong);
 
 #ifdef __cplusplus
 }

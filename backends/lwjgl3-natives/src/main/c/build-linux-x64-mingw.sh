@@ -1,0 +1,24 @@
+#!/usr/bin/sh
+
+JAVA_HOME=/path/to/your/jdk
+FILE_NAME=gdwt64.dll
+
+x86_64-w64-mingw32-gcc \
+-D_FILE_OFFSET_BITS=64 \
+-std=c99 \
+-Wall \
+-Wextra \
+-O3 \
+-s \
+-Iinclude \
+-Iinclude/windows \
+-I$JAVA_HOME/include \
+-I$JAVA_HOME/include/win32 \
+src/windows/windows_natives.c \
+-fpic \
+-shared \
+-o ../resources/$FILE_NAME \
+-luser32 \
+-lgdi32 \
+-lshlwapi \
+-ladvapi32

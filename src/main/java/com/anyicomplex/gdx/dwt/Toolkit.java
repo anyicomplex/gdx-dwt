@@ -9,10 +9,6 @@ public interface Toolkit {
 
     Shell rootShell();
 
-    void grabPointer(Shell shell);
-
-    void ungrabPointer();
-
     String prefsDir(String companyName, String appName);
 
     String dataDir(String companyName, String appName);

@@ -3,6 +3,7 @@ package com.anyicomplex.gdx.dwt.backends.lwjgl3.factory;
 import com.anyicomplex.gdx.dwt.Gdwt;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.Lwjgl3Factory;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.glfw.GLFWNativeUtils;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.windows.WindowsNatives;
 import com.anyicomplex.gdx.dwt.factory.Shell;
 import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
 import com.anyicomplex.gdx.dwt.factory.ShellListener;
@@ -14,7 +15,9 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.SharedLibraryLoader;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWNativeWin32;
 
 public class Lwjgl3Shell extends Shell {
 
@@ -42,7 +45,7 @@ public class Lwjgl3Shell extends Shell {
     }
 
     @Override
-    public Array<Shell> getChildShells() {
+    public Array<Shell> childShells() {
         return childShells;
     }
 
@@ -80,7 +83,7 @@ public class Lwjgl3Shell extends Shell {
                                 shellConfig.windowHideMaximizeButton, shellConfig.windowHideMinimizeButton);
                         boolean shouldFocusParent = false;
                         if (!isRootShell && parentShell != null) {
-                            parentShell.getChildShells().add(Lwjgl3Shell.this);
+                            parentShell.childShells().add(Lwjgl3Shell.this);
                             switch (shellType) {
                                 case Dialog:
                                     GLFWNativeUtils.glfwSetWindowIsDialog(handle, ((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
@@ -125,11 +128,17 @@ public class Lwjgl3Shell extends Shell {
             public boolean closeRequested() {
                 if (shellListener == null) {
                     closeAllChildShells();
+                    if (SharedLibraryLoader.isWindows && shellType == ShellType.Dialog && parentShell != null)
+                        WindowsNatives.enableWindow(GLFWNativeWin32.glfwGetWin32Window(((Lwjgl3Shell)parentShell).window.getWindowHandle()), true);
                     return true;
                 }
                 else {
                     boolean close = shellListener.closeRequested();
-                    if (close) closeAllChildShells();
+                    if (close) {
+                        closeAllChildShells();
+                        if (SharedLibraryLoader.isWindows && shellType == ShellType.Dialog && parentShell != null)
+                            WindowsNatives.enableWindow(GLFWNativeWin32.glfwGetWin32Window(((Lwjgl3Shell)parentShell).window.getWindowHandle()), true);
+                    }
                     return close;
                 }
             }
@@ -165,7 +174,7 @@ public class Lwjgl3Shell extends Shell {
     @Override
     public void close() {
         window.closeWindow();
-        if (parentShell != null) parentShell.getChildShells().removeValue(this, true);
+        if (parentShell != null) parentShell.childShells().removeValue(this, true);
         closeAllChildShells();
     }
 

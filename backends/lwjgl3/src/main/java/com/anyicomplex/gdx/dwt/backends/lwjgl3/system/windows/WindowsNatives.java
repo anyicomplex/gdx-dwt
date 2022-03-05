@@ -20,18 +20,41 @@ public class WindowsNatives {
         SetWindowLongPtr(hWnd, GWL_STYLE, windowLongPtr);
     }
 
-    public static native void grabPointer(long hWnd);
+    public static void setWindowIsDialog(long hWnd, long parent) {
+        long windowLongPtr = GetWindowLongPtr(hWnd, GWL_STYLE);
+        windowLongPtr = windowLongPtr | WS_POPUP;
+        SetWindowLongPtr(hWnd, GWL_STYLE, windowLongPtr);
+        SetWindowLongPtr(hWnd, GWL_HWNDPARENT, parent);
+        enableWindow(parent, false);
+    }
 
-    public static native void ungrabPointer();
+    public static void setWindowIsNormal(long hWnd) {
+        long windowLongPtr = GetWindowLongPtr(hWnd, GWL_STYLE);
+        windowLongPtr = windowLongPtr & ~WS_POPUP;
+        windowLongPtr = windowLongPtr & ~WS_CHILD;
+        windowLongPtr = windowLongPtr | WS_EX_APPWINDOW;
+        SetWindowLongPtr(hWnd, GWL_STYLE, windowLongPtr);
+        SetWindowLongPtr(hWnd, GWL_HWNDPARENT, 0);
+    }
 
-    public static native void setWindowIsDialog(long hWnd, long parent);
+    public static void setWindowIsTooltip(long hWnd, long parent) {
+        long windowLongPtr = GetWindowLongPtr(hWnd, GWL_STYLE);
+        windowLongPtr = windowLongPtr | WS_CHILD;
+        windowLongPtr = windowLongPtr & ~WS_EX_APPWINDOW;
+        SetWindowLongPtr(hWnd, GWL_STYLE, windowLongPtr);
+        SetWindowLongPtr(hWnd, GWL_HWNDPARENT, parent);
+    }
 
-    public static native void setWindowIsNormal(long hWnd);
-
-    public static native void setWindowIsTooltip(long hWnd, long parent);
-
-    public static native void setWindowIsPopup(long hWnd, long parent);
+    public static void setWindowIsPopup(long hWnd, long parent) {
+        long windowLongPtr = GetWindowLongPtr(hWnd, GWL_STYLE);
+        windowLongPtr = windowLongPtr | WS_CHILD;
+        windowLongPtr = windowLongPtr & ~WS_EX_APPWINDOW;
+        SetWindowLongPtr(hWnd, GWL_STYLE, windowLongPtr);
+        SetWindowLongPtr(hWnd, GWL_HWNDPARENT, parent);
+    }
 
     public static native void open(String path);
+
+    public static native void enableWindow(long hWnd, boolean enabled);
 
 }

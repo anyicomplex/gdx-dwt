@@ -41,43 +41,19 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windo
 
 /*
  * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives
- * Method:    setWindowIsDialog
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_setWindowIsDialog
-  (JNIEnv *, jclass, jlong, jlong);
-
-/*
- * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives
- * Method:    setWindowIsNormal
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_setWindowIsNormal
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives
- * Method:    setWindowIsTooltip
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_setWindowIsTooltip
-  (JNIEnv *, jclass, jlong, jlong);
-
-/*
- * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives
- * Method:    setWindowIsPopup
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_setWindowIsPopup
-  (JNIEnv *, jclass, jlong, jlong);
-
-/*
- * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives
  * Method:    open
  * Signature: (Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_open
   (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives
+ * Method:    enableWindow
+ * Signature: (JZ)V
+ */
+JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_windows_WindowsNatives_enableWindow
+  (JNIEnv *, jclass, jlong, jboolean);
 
 #ifdef __cplusplus
 }

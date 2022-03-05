@@ -19,17 +19,17 @@ public abstract class Shell {
 
     public abstract Shell parentShell();
 
-    public abstract Array<Shell> getChildShells();
+    public abstract Array<Shell> childShells();
 
     public void closeAllChildShells() {
-        Array<Shell> shells = getChildShells();
+        Array<Shell> shells = childShells();
         if (shells != null) {
             for (Shell shell : shells) shell.close();
         }
     }
 
     public void closeChildShells(ShellType type) {
-        Array<Shell> shells = getChildShells();
+        Array<Shell> shells = childShells();
         if (shells != null) {
             for (Shell shell : shells) {
                 if (shell.type() == type) shell.close();

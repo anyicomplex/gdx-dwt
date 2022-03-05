@@ -24,32 +24,6 @@ public class GLFWNativeUtils {
         }
     }
 
-    public static void glfwGrabPointer(long window) {
-        if (SharedLibraryLoader.isWindows) {
-            WindowsNatives.grabPointer(GLFWNativeWin32.glfwGetWin32Window(window));
-        }
-        else if (SharedLibraryLoader.isLinux) {
-            long display = GLFWNativeX11.glfwGetX11Display();
-            long w = GLFWNativeX11.glfwGetX11Window(window);
-            LinuxNatives.grabPointer(display, w);
-        }
-        else if (SharedLibraryLoader.isMac) {
-
-        }
-    }
-
-    public static void glfwUngrabPointer() {
-        if (SharedLibraryLoader.isWindows) {
-            WindowsNatives.ungrabPointer();
-        }
-        else if (SharedLibraryLoader.isLinux) {
-            LinuxNatives.ungrabPointer(GLFWNativeX11.glfwGetX11Display());
-        }
-        else if (SharedLibraryLoader.isMac) {
-
-        }
-    }
-
     public static void glfwSetWindowIsDialog(long window, long parent) {
         if (SharedLibraryLoader.isWindows) {
             long hWnd = GLFWNativeWin32.glfwGetWin32Window(window);

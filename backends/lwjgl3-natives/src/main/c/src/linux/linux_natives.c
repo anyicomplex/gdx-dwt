@@ -78,9 +78,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_syst
   }
 
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_hideXWindowButtons
-  (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw, jboolean maximize, jboolean minimize) {
-    Display *display = (Display *)jdisplay;
-    Window w = (Window)jw;
+  (JNIEnv *env, jclass clazz, jlong display, jlong w, jboolean maximize, jboolean minimize) {
     PropMwmHints hints;
     Atom mwm_hints = XInternAtom(display, _XA_MWM_HINTS, False);
     hints.functions = MWM_FUNC_RESIZE | MWM_FUNC_MOVE | MWM_FUNC_CLOSE;
@@ -134,24 +132,19 @@ JNIEXPORT jobject JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_li
     return jfont;
   }
 
-JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_grabPointer
-  (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw) {
-      Display *display = (Display *)jdisplay;
-      Window w = (Window)jw;
-      XGrabPointer(display, w, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+JNIEXPORT jint JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_XGrabPointer
+  (JNIEnv *env, jclass clazz, jlong display, jlong w) {
+      return XGrabPointer(display, w, True, None, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
   }
 
-JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_ungrabPointer
-  (JNIEnv *env, jclass clazz, jlong jdisplay) {
-    XUngrabPointer((Display *)jdisplay, CurrentTime);
+JNIEXPORT jint JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_XUngrabPointer
+  (JNIEnv *env, jclass clazz, jlong display) {
+    return XUngrabPointer(display, CurrentTime);
   }
 
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_setXWindowIsDialog
-  (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw, jlong jparent) {
-    if (jparent) {
-      Display *display = (Display *)jdisplay;
-      Window w = (Window)jw;
-      Window parent = (Window)jparent;
+  (JNIEnv *env, jclass clazz, jlong display, jlong w, jlong parent) {
+    if (parent) {
       Atom window_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
       Atom wm_state = XInternAtom(display, "_NET_WM_STATE", False);
       Atom type_dialog = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
@@ -163,9 +156,7 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux
   }
 
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_setXWindowIsNormal
-  (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw) {
-    Display *display = (Display *)jdisplay;
-    Window w = (Window)jw;
+  (JNIEnv *env, jclass clazz, jlong display, jlong w) {
     Atom window_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
     Atom wm_state = XInternAtom(display, "_NET_WM_STATE", False);
     Atom type_normal = XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", False);
@@ -175,11 +166,8 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux
   }
 
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_setXWindowIsTooltip
-  (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw, jlong jparent) {
-    if (jparent) {
-      Display *display = (Display *)jdisplay;
-      Window w = (Window)jw;
-      Window parent = (Window)jparent;
+  (JNIEnv *env, jclass clazz, jlong display, jlong w, jlong parent) {
+    if (parent) {
       Atom window_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
       Atom wm_state = XInternAtom(display, "_NET_WM_STATE", False);
       Atom type_tooltip = XInternAtom(display, "_NET_WM_WINDOW_TYPE_TOOLTIP", False);
@@ -194,11 +182,8 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux
   }
 
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_system_linux_LinuxNatives_setXWindowIsPopup
-  (JNIEnv *env, jclass clazz, jlong jdisplay, jlong jw, jlong jparent) {
-    if (jparent) {
-      Display *display = (Display *)jdisplay;
-      Window w = (Window)jw;
-      Window parent = (Window)jparent;
+  (JNIEnv *env, jclass clazz, jlong display, jlong w, jlong parent) {
+    if (parent) {
       Atom window_type = XInternAtom(display, "_NET_WM_WINDOW_TYPE", False);
       Atom wm_state = XInternAtom(display, "_NET_WM_STATE", False);
       Atom type_popup = XInternAtom(display, "_NET_WM_WINDOW_TYPE_POPUP_MENU", False);
