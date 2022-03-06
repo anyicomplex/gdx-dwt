@@ -34,6 +34,7 @@ project(":backends:lwjgl3") {
     dependencies {
         implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        api "com.github.kwhat:jnativehook:2.2.1"
         if (System.getProperty("os.name").toLowerCase().contains('linux')) {
             implementation 'io.github.anyicomplex:xdg-utils-java:1.1.3'
         }

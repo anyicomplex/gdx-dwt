@@ -41,4 +41,16 @@ public abstract class Shell {
 
     public abstract int positionY();
 
+    public abstract int width();
+
+    public abstract int height();
+
+    public boolean contains(int screenX, int screenY) {
+        int positionX = positionX();
+        int positionY = positionY();
+        int width = width();
+        int height = height();
+        return positionX <= screenX && positionX + width >= screenX && positionY <= screenY && positionY + height >= screenY;
+    }
+
 }

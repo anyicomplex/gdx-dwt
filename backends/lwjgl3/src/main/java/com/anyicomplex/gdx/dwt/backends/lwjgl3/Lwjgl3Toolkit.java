@@ -14,9 +14,12 @@ import com.anyicomplex.gdx.dwt.toolkit.FontHandle;
 import com.anyicomplex.gdx.dwt.toolkit.Notification;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
+import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.NativeHookException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,6 +30,8 @@ public class Lwjgl3Toolkit implements Toolkit {
 
     private final Lwjgl3Shell rootShell;
 
+    private final GlobalInputHandler inputHandler;
+
     @Override
     public Shell rootShell() {
         return rootShell;
@@ -34,10 +39,26 @@ public class Lwjgl3Toolkit implements Toolkit {
 
     public Lwjgl3Toolkit(ApplicationListener listener, ShellConfiguration config) {
         if (System.getProperty("os.name").equalsIgnoreCase("freebsd")) SharedLibraryLoader.isLinux = true;
+        try {
+            GlobalScreen.registerNativeHook();
+        } catch (NativeHookException e) {
+            System.err.println("There was a problem registering the native hook.");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
+        }
+        inputHandler = new GlobalInputHandler();
+        GlobalScreen.addNativeMouseListener(inputHandler);
+        GlobalScreen.addNativeKeyListener(inputHandler);
         Gdwt.toolkit = this;
         Gdwt.factory = new Lwjgl3Factory();
         rootShell = new Lwjgl3Shell(listener, config);
         rootShell.loop();
+        try {
+            GlobalScreen.unregisterNativeHook();
+        } catch (NativeHookException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -145,6 +166,16 @@ public class Lwjgl3Toolkit implements Toolkit {
     @Override
     public Notification notification(Pixmap icon, String title, String message, long time) {
         return null;
+    }
+
+    @Override
+    public void setGlobalInputProcessor(InputProcessor processor) {
+        inputHandler.setInputProcessor(processor);
+    }
+
+    @Override
+    public InputProcessor getGlobalInputProcessor() {
+        return inputHandler.getInputProcessor();
     }
 
 }

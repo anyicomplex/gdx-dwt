@@ -3,6 +3,7 @@ package com.anyicomplex.gdx.dwt;
 import com.anyicomplex.gdx.dwt.factory.Shell;
 import com.anyicomplex.gdx.dwt.toolkit.FontHandle;
 import com.anyicomplex.gdx.dwt.toolkit.Notification;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Pixmap;
 
 public interface Toolkit {
@@ -34,5 +35,9 @@ public interface Toolkit {
     Notification notification(Pixmap icon, String title, String message);
 
     Notification notification(Pixmap icon, String title, String message, long time);
+
+    void setGlobalInputProcessor(InputProcessor processor);
+
+    InputProcessor getGlobalInputProcessor();
 
 }

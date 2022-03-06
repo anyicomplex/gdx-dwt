@@ -16,8 +16,11 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWNativeWin32;
+
+import java.nio.IntBuffer;
 
 public class Lwjgl3Shell extends Shell {
 
@@ -28,6 +31,11 @@ public class Lwjgl3Shell extends Shell {
     private final ApplicationListener applicationListener;
     private final Lwjgl3ApplicationConfiguration lwjgl3Config;
     private final boolean isRootShell;
+
+    private Lwjgl3Window window;
+
+    private final IntBuffer tmpBuffer;
+    private final IntBuffer tmpBuffer2;
 
     @Override
     public ShellType type() {
@@ -51,6 +59,8 @@ public class Lwjgl3Shell extends Shell {
 
     public Lwjgl3Shell(ApplicationListener listener, ShellConfiguration config) {
         if (config == null) throw new GdxRuntimeException("config cannot be null.");
+        this.tmpBuffer = BufferUtils.createIntBuffer(1);
+        this.tmpBuffer2 = BufferUtils.createIntBuffer(1);
         applicationListener = listener;
         ShellConfiguration shellConfig = ShellConfiguration.copy(config);
         lwjgl3Config = Lwjgl3Factory.generateLwjgl3Config(shellConfig);
@@ -165,8 +175,6 @@ public class Lwjgl3Shell extends Shell {
         }
     }
 
-    private Lwjgl3Window window;
-
     public Lwjgl3Window getWindow() {
         return window;
     }
@@ -186,6 +194,18 @@ public class Lwjgl3Shell extends Shell {
     @Override
     public int positionY() {
         return window.getPositionY();
+    }
+
+    @Override
+    public int width() {
+        GLFW.glfwGetWindowSize(window.getWindowHandle(), tmpBuffer, tmpBuffer2);
+        return tmpBuffer.get(0);
+    }
+
+    @Override
+    public int height() {
+        GLFW.glfwGetWindowSize(window.getWindowHandle(), tmpBuffer, tmpBuffer2);
+        return tmpBuffer2.get(0);
     }
 
 }
