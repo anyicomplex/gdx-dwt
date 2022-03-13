@@ -36,7 +36,7 @@ public class PathHelper {
     private PathHelper(){}
 
     /**
-     * System file separator, on Windows is '\' and on Unix-like is '/'.
+     * System file separator, on Windows is '\' and on *nix is '/'.
      */
     public static final String SEPARATOR = System.getProperty("file.separator");
 
