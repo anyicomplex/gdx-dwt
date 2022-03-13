@@ -4,9 +4,9 @@ import com.anyicomplex.gdx.dwt.Gdwt;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.Lwjgl3Factory;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.glfw.GLFWNativeUtils;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.windows.WindowsNatives;
-import com.anyicomplex.gdx.dwt.factory.Shell;
-import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
-import com.anyicomplex.gdx.dwt.factory.ShellListener;
+import com.anyicomplex.gdx.dwt.factory.Form;
+import com.anyicomplex.gdx.dwt.factory.FormConfiguration;
+import com.anyicomplex.gdx.dwt.factory.FormListener;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
@@ -22,15 +22,15 @@ import org.lwjgl.glfw.GLFWNativeWin32;
 
 import java.nio.IntBuffer;
 
-public class Lwjgl3Shell extends Shell {
+public class Lwjgl3Form extends Form {
 
-    private final Array<Shell> childShells = new Array<>();
-    private final Shell parentShell;
-    private final ShellType shellType;
+    private final Array<Form> childForms = new Array<>();
+    private final Form parentForm;
+    private final FormType formType;
 
     private final ApplicationListener applicationListener;
     private final Lwjgl3ApplicationConfiguration lwjgl3Config;
-    private final boolean isRootShell;
+    private final boolean isRootForm;
 
     private Lwjgl3Window window;
 
@@ -38,140 +38,140 @@ public class Lwjgl3Shell extends Shell {
     private final IntBuffer tmpBuffer2;
 
     @Override
-    public ShellType type() {
-        return shellType;
+    public FormType type() {
+        return formType;
     }
 
     @Override
-    public boolean isRootShell() {
-        return isRootShell;
+    public boolean isRootForm() {
+        return isRootForm;
     }
 
     @Override
-    public Shell parentShell() {
-        return parentShell;
+    public Form parentForm() {
+        return parentForm;
     }
 
     @Override
-    public Array<Shell> childShells() {
-        return childShells;
+    public Array<Form> childForms() {
+        return childForms;
     }
 
-    public Lwjgl3Shell(ApplicationListener listener, ShellConfiguration config) {
+    public Lwjgl3Form(ApplicationListener listener, FormConfiguration config) {
         if (config == null) throw new GdxRuntimeException("config cannot be null.");
         this.tmpBuffer = BufferUtils.createIntBuffer(1);
         this.tmpBuffer2 = BufferUtils.createIntBuffer(1);
         applicationListener = listener;
-        ShellConfiguration shellConfig = ShellConfiguration.copy(config);
-        lwjgl3Config = Lwjgl3Factory.generateLwjgl3Config(shellConfig);
+        FormConfiguration formConfig = FormConfiguration.copy(config);
+        lwjgl3Config = Lwjgl3Factory.generateLwjgl3Config(formConfig);
         lwjgl3Config.setInitialVisible(false);
-        ShellListener shellListener = shellConfig.shellListener;
-        isRootShell = Gdwt.toolkit.rootShell() == null;
-        shellType = shellConfig.shellType;
-        if (isRootShell) parentShell = null;
+        FormListener formListener = formConfig.formListener;
+        isRootForm = Gdwt.toolkit.rootForm() == null;
+        formType = formConfig.formType;
+        if (isRootForm) parentForm = null;
         else {
-            switch (shellType) {
+            switch (formType) {
                 case Dialog:
                 case Tooltip:
                 case Popup:
-                    parentShell = shellConfig.parentShell;
+                    parentForm = formConfig.parentForm;
                     break;
                 default:
-                    parentShell = null;
+                    parentForm = null;
                     break;
             }
         }
         lwjgl3Config.setWindowListener(new Lwjgl3WindowListener() {
             @Override
             public void created(Lwjgl3Window window) {
-                Lwjgl3Shell.this.window = window;
+                Lwjgl3Form.this.window = window;
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
                     public void run() {
                         long handle = window.getWindowHandle();
-                        if (shellConfig.windowDecorated) GLFWNativeUtils.glfwHideWindowButtons(handle,
-                                shellConfig.windowHideMaximizeButton, shellConfig.windowHideMinimizeButton);
+                        if (formConfig.windowDecorated) GLFWNativeUtils.glfwHideWindowButtons(handle,
+                                formConfig.windowHideMaximizeButton, formConfig.windowHideMinimizeButton);
                         boolean shouldFocusParent = false;
-                        if (!isRootShell && parentShell != null) {
-                            parentShell.childShells().add(Lwjgl3Shell.this);
-                            switch (shellType) {
+                        if (!isRootForm && parentForm != null) {
+                            parentForm.childForms().add(Lwjgl3Form.this);
+                            switch (formType) {
                                 case Dialog:
-                                    GLFWNativeUtils.glfwSetWindowIsDialog(handle, ((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
+                                    GLFWNativeUtils.glfwSetWindowIsDialog(handle, ((Lwjgl3Form) parentForm).getWindow().getWindowHandle());
                                     break;
                                 case Tooltip:
-                                    GLFWNativeUtils.glfwSetWindowIsTooltip(handle, ((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
+                                    GLFWNativeUtils.glfwSetWindowIsTooltip(handle, ((Lwjgl3Form) parentForm).getWindow().getWindowHandle());
                                     GLFW.glfwSetWindowAttrib(handle, GLFW.GLFW_FOCUS_ON_SHOW, GLFW.GLFW_FALSE);
                                     GLFW.glfwSetWindowAttrib(handle, GLFW.GLFW_FLOATING, GLFW.GLFW_TRUE);
                                     shouldFocusParent = true;
                                     break;
                                 case Popup:
-                                    GLFWNativeUtils.glfwSetWindowIsPopup(handle, ((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
+                                    GLFWNativeUtils.glfwSetWindowIsPopup(handle, ((Lwjgl3Form) parentForm).getWindow().getWindowHandle());
                                     GLFW.glfwSetWindowAttrib(handle, GLFW.GLFW_FOCUS_ON_SHOW, GLFW.GLFW_FALSE);
                                     GLFW.glfwSetWindowAttrib(handle, GLFW.GLFW_FLOATING, GLFW.GLFW_TRUE);
                                     shouldFocusParent = true;
                                     break;
                             }
                         }
-                        if (shellConfig.initialVisible) GLFW.glfwShowWindow(handle);
-                        if (shouldFocusParent) GLFW.glfwFocusWindow(((Lwjgl3Shell)parentShell).getWindow().getWindowHandle());
+                        if (formConfig.initialVisible) GLFW.glfwShowWindow(handle);
+                        if (shouldFocusParent) GLFW.glfwFocusWindow(((Lwjgl3Form) parentForm).getWindow().getWindowHandle());
                     }
                 });
-                if (shellListener != null) shellListener.created(Lwjgl3Shell.this);
+                if (formListener != null) formListener.created(Lwjgl3Form.this);
             }
             @Override
             public void iconified(boolean isIconified) {
-                if (shellListener != null) shellListener.iconified(isIconified);
+                if (formListener != null) formListener.iconified(isIconified);
             }
             @Override
             public void maximized(boolean isMaximized) {
-                if (shellListener != null) shellListener.maximized(isMaximized);
+                if (formListener != null) formListener.maximized(isMaximized);
             }
             @Override
             public void focusLost() {
-                if (shellListener != null) shellListener.focusLost();
+                if (formListener != null) formListener.focusLost();
             }
             @Override
             public void focusGained() {
-                if (shellListener != null) shellListener.focusGained();
+                if (formListener != null) formListener.focusGained();
             }
             @Override
             public boolean closeRequested() {
-                if (shellListener == null) {
-                    closeAllChildShells();
-                    if (SharedLibraryLoader.isWindows && shellType == ShellType.Dialog && parentShell != null)
-                        WindowsNatives.enableWindow(GLFWNativeWin32.glfwGetWin32Window(((Lwjgl3Shell)parentShell).window.getWindowHandle()), true);
+                if (formListener == null) {
+                    closeAllChildForms();
+                    if (SharedLibraryLoader.isWindows && formType == FormType.Dialog && parentForm != null)
+                        WindowsNatives.enableWindow(GLFWNativeWin32.glfwGetWin32Window(((Lwjgl3Form) parentForm).window.getWindowHandle()), true);
                     return true;
                 }
                 else {
-                    boolean close = shellListener.closeRequested();
+                    boolean close = formListener.closeRequested();
                     if (close) {
-                        closeAllChildShells();
-                        if (SharedLibraryLoader.isWindows && shellType == ShellType.Dialog && parentShell != null)
-                            WindowsNatives.enableWindow(GLFWNativeWin32.glfwGetWin32Window(((Lwjgl3Shell)parentShell).window.getWindowHandle()), true);
+                        closeAllChildForms();
+                        if (SharedLibraryLoader.isWindows && formType == FormType.Dialog && parentForm != null)
+                            WindowsNatives.enableWindow(GLFWNativeWin32.glfwGetWin32Window(((Lwjgl3Form) parentForm).window.getWindowHandle()), true);
                     }
                     return close;
                 }
             }
             @Override
             public void filesDropped(String[] files) {
-                if (shellListener != null) shellListener.filesDropped(files);
+                if (formListener != null) formListener.filesDropped(files);
             }
             @Override
             public void refreshRequested() {
-                if (shellListener != null) shellListener.refreshRequested();
+                if (formListener != null) formListener.refreshRequested();
             }
         });
-        if (!isRootShell) {
+        if (!isRootForm) {
             ((Lwjgl3Application)Gdx.app).newWindow(listener, lwjgl3Config);
         }
     }
 
     public void loop() {
-        if (isRootShell) {
+        if (isRootForm) {
             new Lwjgl3Application(applicationListener, lwjgl3Config);
         }
         else {
-            throw new GdxRuntimeException("Not root shell!");
+            throw new GdxRuntimeException("Not root form!");
         }
     }
 
@@ -182,8 +182,8 @@ public class Lwjgl3Shell extends Shell {
     @Override
     public void close() {
         window.closeWindow();
-        if (parentShell != null) parentShell.childShells().removeValue(this, true);
-        closeAllChildShells();
+        if (parentForm != null) parentForm.childForms().removeValue(this, true);
+        closeAllChildForms();
     }
 
     @Override

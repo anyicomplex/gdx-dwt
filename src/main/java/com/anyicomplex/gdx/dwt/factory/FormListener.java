@@ -1,8 +1,8 @@
 package com.anyicomplex.gdx.dwt.factory;
 
-public interface ShellListener {
+public interface FormListener {
 
-    void created(Shell shell);
+    void created(Form form);
 
     void iconified(boolean isIconified);
 

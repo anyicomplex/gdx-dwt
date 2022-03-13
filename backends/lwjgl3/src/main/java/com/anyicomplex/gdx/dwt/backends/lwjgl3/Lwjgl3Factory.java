@@ -2,48 +2,48 @@ package com.anyicomplex.gdx.dwt.backends.lwjgl3;
 
 import com.anyicomplex.gdx.dwt.AbstractFactory;
 import com.anyicomplex.gdx.dwt.Gdwt;
-import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Shell;
-import com.anyicomplex.gdx.dwt.factory.Shell;
-import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Form;
+import com.anyicomplex.gdx.dwt.factory.Form;
+import com.anyicomplex.gdx.dwt.factory.FormConfiguration;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
 public class Lwjgl3Factory extends AbstractFactory {
 
     @Override
-    public Shell window(ApplicationListener listener, ShellConfiguration config) {
-        return new Lwjgl3Shell(listener, config);
+    public Form window(ApplicationListener listener, FormConfiguration config) {
+        return new Lwjgl3Form(listener, config);
     }
 
     @Override
-    public Shell dialog(Shell parentShell, ApplicationListener listener, ShellConfiguration config) {
-        ShellConfiguration dialogConfig = ShellConfiguration.copy(config);
-        dialogConfig.shellType = Shell.ShellType.Dialog;
-        dialogConfig.parentShell = parentShell;
+    public Form dialog(Form parentForm, ApplicationListener listener, FormConfiguration config) {
+        FormConfiguration dialogConfig = FormConfiguration.copy(config);
+        dialogConfig.formType = Form.FormType.Dialog;
+        dialogConfig.parentForm = parentForm;
         dialogConfig.windowHideMinimizeButton = true;
         dialogConfig.windowHideMaximizeButton = true;
         return window(listener, dialogConfig);
     }
 
     @Override
-    public Shell tooltip(Shell parentShell, ApplicationListener listener, ShellConfiguration config) {
-        ShellConfiguration tooltipConfig = ShellConfiguration.copy(config);
-        tooltipConfig.shellType = Shell.ShellType.Tooltip;
-        tooltipConfig.parentShell = parentShell;
+    public Form tooltip(Form parentForm, ApplicationListener listener, FormConfiguration config) {
+        FormConfiguration tooltipConfig = FormConfiguration.copy(config);
+        tooltipConfig.formType = Form.FormType.Tooltip;
+        tooltipConfig.parentForm = parentForm;
         tooltipConfig.windowDecorated = false;
         return window(listener, tooltipConfig);
     }
 
     @Override
-    public Shell popup(Shell parentShell, ApplicationListener listener, ShellConfiguration config) {
-        ShellConfiguration popupConfig = ShellConfiguration.copy(config);
-        popupConfig.shellType = Shell.ShellType.Popup;
-        popupConfig.parentShell = parentShell;
+    public Form popup(Form parentForm, ApplicationListener listener, FormConfiguration config) {
+        FormConfiguration popupConfig = FormConfiguration.copy(config);
+        popupConfig.formType = Form.FormType.Popup;
+        popupConfig.parentForm = parentForm;
         popupConfig.windowDecorated = false;
         return window(listener, popupConfig);
     }
 
-    public static Lwjgl3ApplicationConfiguration generateLwjgl3Config(ShellConfiguration config) {
+    public static Lwjgl3ApplicationConfiguration generateLwjgl3Config(FormConfiguration config) {
         Lwjgl3ApplicationConfiguration lwjgl3Config = new Lwjgl3ApplicationConfiguration();
         lwjgl3Config.setInitialVisible(config.initialVisible);
         lwjgl3Config.disableAudio(config.disableAudio);

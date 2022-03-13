@@ -1,6 +1,6 @@
 package com.anyicomplex.gdx.dwt;
 
-import com.anyicomplex.gdx.dwt.factory.Shell;
+import com.anyicomplex.gdx.dwt.factory.Form;
 import com.anyicomplex.gdx.dwt.toolkit.FontHandle;
 import com.anyicomplex.gdx.dwt.toolkit.Notification;
 import com.badlogic.gdx.InputProcessor;
@@ -8,7 +8,7 @@ import com.badlogic.gdx.files.FileHandle;
 
 public interface Toolkit {
 
-    Shell rootShell();
+    Form rootForm();
 
     String prefsDir(String companyName, String appName);
 

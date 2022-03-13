@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.glutils.HdpiMode;
 import java.io.PrintStream;
 import java.util.Arrays;
 
-public class ShellConfiguration {
+public class FormConfiguration {
 
     public int windowX = -1;
     public int windowY = -1;
@@ -22,7 +22,7 @@ public class ShellConfiguration {
     public boolean autoIconify = true;
     public Files.FileType windowIconFileType;
     public String[] windowIconPaths;
-    public ShellListener shellListener;
+    public FormListener formListener;
     public Graphics.DisplayMode fullscreenMode;
     public String title;
     public Color initialBackgroundColor = Color.BLACK;
@@ -61,16 +61,16 @@ public class ShellConfiguration {
     public boolean windowHideMaximizeButton = false;
     public boolean windowHideMinimizeButton = false;
 
-    public Shell parentShell;
-    public Shell.ShellType shellType = Shell.ShellType.Normal;
+    public Form parentForm;
+    public Form.FormType formType = Form.FormType.Normal;
 
-    public static ShellConfiguration copy(ShellConfiguration config) {
-        ShellConfiguration copy = new ShellConfiguration();
+    public static FormConfiguration copy(FormConfiguration config) {
+        FormConfiguration copy = new FormConfiguration();
         copy.set(config);
         return copy;
     }
 
-    public void set(ShellConfiguration config){
+    public void set(FormConfiguration config){
         windowX = config.windowX;
         windowY = config.windowY;
         windowWidth = config.windowWidth;
@@ -87,7 +87,7 @@ public class ShellConfiguration {
         windowIconFileType = config.windowIconFileType;
         if (config.windowIconPaths != null)
             windowIconPaths = Arrays.copyOf(config.windowIconPaths, config.windowIconPaths.length);
-        shellListener = config.shellListener;
+        formListener = config.formListener;
         fullscreenMode = config.fullscreenMode;
         title = config.title;
         initialBackgroundColor = config.initialBackgroundColor;
@@ -118,8 +118,8 @@ public class ShellConfiguration {
         debugStream = config.debugStream;
         windowHideMaximizeButton = config.windowHideMaximizeButton;
         windowHideMinimizeButton = config.windowHideMinimizeButton;
-        parentShell = config.parentShell;
-        shellType = config.shellType;
+        parentForm = config.parentForm;
+        formType = config.formType;
     }
 
 }

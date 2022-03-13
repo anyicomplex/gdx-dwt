@@ -1,7 +1,7 @@
 package com.anyicomplex.gdx.dwt;
 
-import com.anyicomplex.gdx.dwt.factory.Shell;
-import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
+import com.anyicomplex.gdx.dwt.factory.Form;
+import com.anyicomplex.gdx.dwt.factory.FormConfiguration;
 import com.anyicomplex.gdx.dwt.widgets.Popup;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -10,19 +10,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 
 public abstract class AbstractFactory implements Factory {
 
-    public Shell window(Shell parentShell, Window window, ShellConfiguration config) {
+    public Form window(Form parentForm, Window window, FormConfiguration config) {
         return null;
     }
 
-    public Shell dialog(Shell parentShell, Dialog dialog, ShellConfiguration config) {
+    public Form dialog(Form parentForm, Dialog dialog, FormConfiguration config) {
         return null;
     }
 
-    public Shell tooltip(Shell parentShell, Tooltip<? extends Actor> tooltip, ShellConfiguration config) {
+    public Form tooltip(Form parentForm, Tooltip<? extends Actor> tooltip, FormConfiguration config) {
         return null;
     }
 
-    public Shell popup(Shell parentShell, Popup<? extends Actor> popup, ShellConfiguration config) {
+    public Form popup(Form parentForm, Popup<? extends Actor> popup, FormConfiguration config) {
         return null;
     }
 

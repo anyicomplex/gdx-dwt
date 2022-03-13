@@ -2,15 +2,15 @@ package com.anyicomplex.gdx.dwt.backends.lwjgl3;
 
 import com.anyicomplex.gdx.dwt.Gdwt;
 import com.anyicomplex.gdx.dwt.Toolkit;
-import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Shell;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Form;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.jnativehook.GlobalInputHandler;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.linux.LinuxNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.macosx.MacOSXNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.windows.WindowsNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.PathHelper;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.SystemPath;
-import com.anyicomplex.gdx.dwt.factory.Shell;
-import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
+import com.anyicomplex.gdx.dwt.factory.Form;
+import com.anyicomplex.gdx.dwt.factory.FormConfiguration;
 import com.anyicomplex.gdx.dwt.toolkit.FontHandle;
 import com.anyicomplex.gdx.dwt.toolkit.Notification;
 import com.badlogic.gdx.ApplicationListener;
@@ -28,16 +28,16 @@ import java.util.function.Predicate;
 
 public class Lwjgl3Toolkit implements Toolkit {
 
-    private final Lwjgl3Shell rootShell;
+    private final Lwjgl3Form rootForm;
 
     private final GlobalInputHandler inputHandler;
 
     @Override
-    public Shell rootShell() {
-        return rootShell;
+    public Form rootForm() {
+        return rootForm;
     }
 
-    public Lwjgl3Toolkit(ApplicationListener listener, ShellConfiguration config) {
+    public Lwjgl3Toolkit(ApplicationListener listener, FormConfiguration config) {
         if (System.getProperty("os.name").equalsIgnoreCase("freebsd")) SharedLibraryLoader.isLinux = true;
         try {
             // TODO Library Loader
@@ -54,8 +54,8 @@ public class Lwjgl3Toolkit implements Toolkit {
         GlobalScreen.addNativeKeyListener(inputHandler);
         Gdwt.toolkit = this;
         Gdwt.factory = new Lwjgl3Factory();
-        rootShell = new Lwjgl3Shell(listener, config);
-        rootShell.loop();
+        rootForm = new Lwjgl3Form(listener, config);
+        rootForm.loop();
         try {
             GlobalScreen.unregisterNativeHook();
         } catch (NativeHookException e) {

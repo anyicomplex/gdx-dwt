@@ -1,7 +1,7 @@
 package com.anyicomplex.gdx.dwt;
 
-import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
-import com.anyicomplex.gdx.dwt.factory.Shell;
+import com.anyicomplex.gdx.dwt.factory.Form;
+import com.anyicomplex.gdx.dwt.factory.FormConfiguration;
 import com.anyicomplex.gdx.dwt.widgets.Popup;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -11,20 +11,20 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 
 public interface Factory {
 
-    Shell window(ApplicationListener listener, ShellConfiguration config);
+    Form window(ApplicationListener listener, FormConfiguration config);
 
-    Shell dialog(Shell parentShell, ApplicationListener listener, ShellConfiguration config);
+    Form dialog(Form parentForm, ApplicationListener listener, FormConfiguration config);
 
-    Shell tooltip(Shell parentShell, ApplicationListener listener, ShellConfiguration config);
+    Form tooltip(Form parentForm, ApplicationListener listener, FormConfiguration config);
 
-    Shell popup(Shell parentShell, ApplicationListener listener, ShellConfiguration config);
+    Form popup(Form parentForm, ApplicationListener listener, FormConfiguration config);
 
-    Shell window(Shell parentShell, Window window, ShellConfiguration config);
+    Form window(Form parentForm, Window window, FormConfiguration config);
 
-    Shell dialog(Shell parentShell, Dialog dialog, ShellConfiguration config);
+    Form dialog(Form parentForm, Dialog dialog, FormConfiguration config);
 
-    Shell tooltip(Shell parentShell, Tooltip<? extends Actor> tooltip, ShellConfiguration config);
+    Form tooltip(Form parentForm, Tooltip<? extends Actor> tooltip, FormConfiguration config);
 
-    Shell popup(Shell parentShell, Popup<? extends Actor> popup, ShellConfiguration config);
+    Form popup(Form parentForm, Popup<? extends Actor> popup, FormConfiguration config);
 
 }

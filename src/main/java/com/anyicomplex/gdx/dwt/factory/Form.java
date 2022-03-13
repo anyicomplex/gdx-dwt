@@ -2,9 +2,9 @@ package com.anyicomplex.gdx.dwt.factory;
 
 import com.badlogic.gdx.utils.Array;
 
-public abstract class Shell {
+public abstract class Form {
 
-    public enum ShellType {
+    public enum FormType {
         Normal,
         Dialog,
         Tooltip,
@@ -13,26 +13,26 @@ public abstract class Shell {
 
     public abstract void close();
 
-    public abstract ShellType type();
+    public abstract FormType type();
 
-    public abstract boolean isRootShell();
+    public abstract boolean isRootForm();
 
-    public abstract Shell parentShell();
+    public abstract Form parentForm();
 
-    public abstract Array<Shell> childShells();
+    public abstract Array<Form> childForms();
 
-    public void closeAllChildShells() {
-        Array<Shell> shells = childShells();
-        if (shells != null) {
-            for (Shell shell : shells) shell.close();
+    public void closeAllChildForms() {
+        Array<Form> forms = childForms();
+        if (forms != null) {
+            for (Form form : forms) form.close();
         }
     }
 
-    public void closeChildShells(ShellType type) {
-        Array<Shell> shells = childShells();
-        if (shells != null) {
-            for (Shell shell : shells) {
-                if (shell.type() == type) shell.close();
+    public void closeChildForms(FormType type) {
+        Array<Form> forms = childForms();
+        if (forms != null) {
+            for (Form form : forms) {
+                if (form.type() == type) form.close();
             }
         }
     }

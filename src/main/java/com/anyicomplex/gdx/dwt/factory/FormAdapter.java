@@ -1,9 +1,9 @@
 package com.anyicomplex.gdx.dwt.factory;
 
-public class ShellAdapter implements ShellListener {
+public class FormAdapter implements FormListener {
 
     @Override
-    public void created(Shell shell) {
+    public void created(Form form) {
 
     }
 
