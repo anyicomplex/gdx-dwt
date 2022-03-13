@@ -4,7 +4,7 @@ import com.anyicomplex.gdx.dwt.factory.Shell;
 import com.anyicomplex.gdx.dwt.toolkit.FontHandle;
 import com.anyicomplex.gdx.dwt.toolkit.Notification;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.files.FileHandle;
 
 public interface Toolkit {
 
@@ -32,9 +32,9 @@ public interface Toolkit {
 
     Notification notification(String title, String message);
 
-    Notification notification(Pixmap icon, String title, String message);
+    Notification notification(FileHandle icon, String title, String message);
 
-    Notification notification(Pixmap icon, String title, String message, long time);
+    Notification notification(FileHandle icon, String title, String message, long time);
 
     void setGlobalInputProcessor(InputProcessor processor);
 

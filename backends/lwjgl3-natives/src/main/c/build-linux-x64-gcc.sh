@@ -1,6 +1,5 @@
 #!/usr/bin/sh
 
-JAVA_HOME=/path/to/your/jdk
 FILE_NAME=libgdwt64.so
 
 gcc \
@@ -15,8 +14,8 @@ $(pkg-config --cflags fontconfig) \
 $(pkg-config --cflags x11) \
 -Iinclude \
 -Iinclude/linux \
--I$JAVA_HOME/include \
--I$JAVA_HOME/include/linux \
+-I$LINUX_X64_JAVA_HOME/include \
+-I$LINUX_X64_JAVA_HOME/include/linux \
 src/linux/linux_natives.c \
 -fpic \
 -shared \

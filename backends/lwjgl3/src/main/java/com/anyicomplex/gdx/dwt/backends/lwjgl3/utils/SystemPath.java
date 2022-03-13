@@ -23,7 +23,7 @@
  *
  */
 
-package com.anyicomplex.gdx.dwt.backends.lwjgl3.util;
+package com.anyicomplex.gdx.dwt.backends.lwjgl3.utils;
 
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 

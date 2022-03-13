@@ -1,6 +1,5 @@
 #!/usr/bin/sh
 
-JAVA_HOME=/path/to/your/jdk
 FILE_NAME=gdwt64.dll
 
 x86_64-w64-mingw32-gcc \
@@ -12,8 +11,8 @@ x86_64-w64-mingw32-gcc \
 -s \
 -Iinclude \
 -Iinclude/windows \
--I$JAVA_HOME/include \
--I$JAVA_HOME/include/win32 \
+-I$WINDOWS_X64_JAVA_HOME/include \
+-I$WINDOWS_X64_JAVA_HOME/include/win32 \
 src/windows/windows_natives.c \
 -fpic \
 -shared \

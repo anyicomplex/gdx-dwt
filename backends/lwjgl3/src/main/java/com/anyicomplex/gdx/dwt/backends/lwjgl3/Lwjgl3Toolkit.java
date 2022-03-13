@@ -3,11 +3,12 @@ package com.anyicomplex.gdx.dwt.backends.lwjgl3;
 import com.anyicomplex.gdx.dwt.Gdwt;
 import com.anyicomplex.gdx.dwt.Toolkit;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Shell;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.jnativehook.GlobalInputHandler;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.linux.LinuxNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.macosx.MacOSXNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.windows.WindowsNatives;
-import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.PathHelper;
-import com.anyicomplex.gdx.dwt.backends.lwjgl3.util.SystemPath;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.PathHelper;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.SystemPath;
 import com.anyicomplex.gdx.dwt.factory.Shell;
 import com.anyicomplex.gdx.dwt.factory.ShellConfiguration;
 import com.anyicomplex.gdx.dwt.toolkit.FontHandle;
@@ -16,7 +17,6 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
@@ -40,6 +40,8 @@ public class Lwjgl3Toolkit implements Toolkit {
     public Lwjgl3Toolkit(ApplicationListener listener, ShellConfiguration config) {
         if (System.getProperty("os.name").equalsIgnoreCase("freebsd")) SharedLibraryLoader.isLinux = true;
         try {
+            // TODO Library Loader
+            // System.setProperty("jnativehook.lib.locator", ValidatedLibraryLocator.class.getCanonicalName());
             GlobalScreen.registerNativeHook();
         } catch (NativeHookException e) {
             System.err.println("There was a problem registering the native hook.");
@@ -159,12 +161,12 @@ public class Lwjgl3Toolkit implements Toolkit {
     }
 
     @Override
-    public Notification notification(Pixmap icon, String title, String message) {
+    public Notification notification(FileHandle icon, String title, String message) {
         return null;
     }
 
     @Override
-    public Notification notification(Pixmap icon, String title, String message, long time) {
+    public Notification notification(FileHandle icon, String title, String message, long time) {
         return null;
     }
 

@@ -4,34 +4,47 @@
 #define TRAY_SUCCESS 0
 #define TRAY_ERROR -1
 
-#define TRAY_TRUE 1
-#define TRAY_FALSE 0
-#define TRAY_INVALID -1
+#define TRAY_MENU_TYPE_NORMAL 0
+#define TRAY_MENU_TYPE_DIVIDER 1
+#define TRAY_MENU_TYPE_CHECKBOX 2
 
 #define TRAY_LOOPING 0
 #define TRAY_EXITED -1
 
 #define TRAY_APPINDICATOR 1
-// #define TRAY_WINAPI 1
+//#define TRAY_WINAPI 1
 
-struct tray_menu;
+typedef struct _tray_menu tray_menu;
 
 typedef struct _tray {
+  #ifdef TRAY_WINAPI
+  wchar_t *title;
+  wchar_t *icon;
+  #else
+  char *title;
   char *icon;
-  struct tray_menu *menu;
+  #endif
+  tray_menu *menu;
 } tray;
 
-typedef struct _tray_menu {
+struct _tray_menu {
+  #ifdef TRAY_WINAPI
+  wchar_t *icon;
+  wchar_t *text;
+  #else
   char *icon;
   char *text;
+  #endif
   int disabled;
   int checked;
+  int radio_check;
+  int type;
 
-  void (*cb)(struct _tray_menu *);
+  void (*cb)(tray_menu *);
   void *context;
 
-  struct _tray_menu *submenu;
-} tray_menu;
+  tray_menu *submenu;
+};
 
 static void tray_update(tray *tray);
 
@@ -39,8 +52,6 @@ static void tray_update(tray *tray);
 
 #include <gtk/gtk.h>
 #include <libappindicator/app-indicator.h>
-
-#define TRAY_APPINDICATOR_ID "gdwt-tray"
 
 static AppIndicator *indicator = NULL;
 static int loop_result = TRAY_LOOPING;
@@ -53,35 +64,35 @@ static void _tray_menu_cb(GtkMenuItem *item, gpointer data) {
 
 static GtkMenuShell *_tray_menu(tray_menu *m) {
   GtkMenuShell *menu = (GtkMenuShell *)gtk_menu_new();
-  for (; m != NULL && m->text != NULL; m++) {
+  for (; m != NULL && (m->type == TRAY_MENU_TYPE_DIVIDER || m->text != NULL); m++) {
     GtkWidget *item;
-    if (strcmp(m->text, "-") == 0) {
-      item = gtk_separator_menu_item_new();
-    } else {
-      if (m->submenu != NULL) {
-        item = gtk_menu_item_new_with_label(m->text);
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), GTK_WIDGET(_tray_menu(m->submenu)));
-      }
-      else if (m->icon != NULL) {
-        item = gtk_image_menu_item_new_with_label(m->text);
-        GtkWidget *image;
-        if (strncmp(m->icon, "/", 1) == 0) image = gtk_image_new_from_file(m->icon);
-        else image = gtk_image_new_from_icon_name(m->icon, GTK_ICON_SIZE_BUTTON);
-        gtk_image_menu_item_set_image(item, image);
+    if (m->submenu == NULL) {
+      if (m->type == TRAY_MENU_TYPE_DIVIDER) {
+        item = gtk_separator_menu_item_new();
       }
       else {
-        if (m->checked == TRAY_INVALID) {
-          item = gtk_menu_item_new_with_label(m->text);
+        if (m->icon == NULL) {
+          if (m->type == TRAY_MENU_TYPE_CHECKBOX) {
+            item = gtk_check_menu_item_new_with_label(m->text);
+            if (m->radio_check) gtk_check_menu_item_set_draw_as_radio(GTK_CHECK_MENU_ITEM(item), TRUE);
+            gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), !!m->checked);
+          }
+          else item = gtk_menu_item_new_with_label(m->text);
         }
         else {
-          item = gtk_check_menu_item_new_with_label(m->text);
-          gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), !!m->checked);
+          item = gtk_image_menu_item_new_with_label(m->text);
+          GtkWidget *image;
+          if (strncmp(m->icon, "/", 1) == 0) image = gtk_image_new_from_file(m->icon);
+          else image = gtk_image_new_from_icon_name(m->icon, GTK_ICON_SIZE_MENU);
+          gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
         }
+        gtk_widget_set_sensitive(item, !m->disabled);
+        if (m->cb != NULL) g_signal_connect(item, "activate", G_CALLBACK(_tray_menu_cb), m);
       }
-      gtk_widget_set_sensitive(item, !m->disabled);
-      if (m->cb != NULL) {
-        g_signal_connect(item, "activate", G_CALLBACK(_tray_menu_cb), m);
-      }
+    }
+    else  {
+      item = gtk_menu_item_new_with_label(m->text);
+      gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), GTK_WIDGET(_tray_menu(m->submenu)));
     }
     gtk_widget_show(item);
     gtk_menu_shell_append(menu, item);
@@ -93,7 +104,8 @@ static int tray_init(tray *tray) {
   if (gtk_init_check(0, NULL) == FALSE) {
     return TRAY_ERROR;
   }
-  indicator = app_indicator_new(TRAY_APPINDICATOR_ID, tray->icon, APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+  indicator = app_indicator_new(tray->title == NULL ? "gdwt-tray" : tray->title, tray->icon, APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+  if (tray->title != NULL) app_indicator_set_title(indicator, tray->title);
   app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
   tray_update(tray);
   return TRAY_SUCCESS;
@@ -229,67 +241,80 @@ static void tray_exit() { objc_msgSend(app, sel_registerName("terminate:"), app)
 
 #elif defined(TRAY_WINAPI)
 #include <windows.h>
-
 #include <shellapi.h>
 
 #define WM_TRAY_CALLBACK_MESSAGE (WM_USER + 1)
-#define WC_TRAY_CLASS_NAME "TRAY"
+#define WC_TRAY_CLASS_NAME L"TRAY"
 #define ID_TRAY_FIRST 1000
 
-static WNDCLASSEX wc;
-static NOTIFYICONDATA nid;
-static HWND hwnd;
+static WNDCLASSEXW wc;
+static NOTIFYICONDATAW nid;
+static HWND hWnd;
 static HMENU hmenu = NULL;
 
-static LRESULT CALLBACK _tray_wnd_proc(HWND hwnd, UINT msg, WPARAM wparam,
-                                       LPARAM lparam) {
+static LRESULT CALLBACK _tray_wnd_proc(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam) {
   switch (msg) {
   case WM_CLOSE:
-    DestroyWindow(hwnd);
-    return 0;
+    DestroyWindow(hWnd);
+    return TRAY_SUCCESS;
   case WM_DESTROY:
     PostQuitMessage(0);
-    return 0;
+    return TRAY_SUCCESS;
   case WM_TRAY_CALLBACK_MESSAGE:
     if (lparam == WM_LBUTTONUP || lparam == WM_RBUTTONUP) {
       POINT p;
       GetCursorPos(&p);
-      SetForegroundWindow(hwnd);
-      WORD cmd = TrackPopupMenu(hmenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON |
-                                           TPM_RETURNCMD | TPM_NONOTIFY,
-                                p.x, p.y, 0, hwnd, NULL);
-      SendMessage(hwnd, WM_COMMAND, cmd, 0);
-      return 0;
+      SetForegroundWindow(hWnd);
+      WORD cmd = TrackPopupMenu(hmenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD | TPM_NONOTIFY, p.x, p.y, 0, hWnd, NULL);
+      SendMessageW(hWnd, WM_COMMAND, cmd, NULL);
+      return TRAY_SUCCESS;
     }
     break;
   case WM_COMMAND:
     if (wparam >= ID_TRAY_FIRST) {
-      MENUITEMINFO item = {
-          .cbSize = sizeof(MENUITEMINFO), .fMask = MIIM_ID | MIIM_DATA,
+      MENUITEMINFOW item = {
+          .cbSize = sizeof(MENUITEMINFOW), 
+          .fMask = MIIM_ID | MIIM_DATA
       };
-      if (GetMenuItemInfo(hmenu, wparam, FALSE, &item)) {
+      if (GetMenuItemInfoW(hmenu, wparam, FALSE, &item)) {
         tray_menu *menu = (tray_menu *)item.dwItemData;
         if (menu != NULL && menu->cb != NULL) {
           menu->cb(menu);
         }
       }
-      return 0;
+      return TRAY_SUCCESS;
     }
     break;
   }
-  return DefWindowProc(hwnd, msg, wparam, lparam);
+  return DefWindowProcW(hWnd, msg, wparam, lparam);
+}
+
+static void Icon2Bitmap(HICON hIcon, HBITMAP *hResult) {
+  HDC hDC = GetDC(NULL);
+  HDC hMemDC = CreateCompatibleDC(hDC);
+  int cx = GetSystemMetrics(SM_CXMENUCHECK);
+  int cy = GetSystemMetrics(SM_CYMENUCHECK);
+  HBITMAP hMemBmp = CreateCompatibleBitmap(hDC, cx, cy);
+  HGDIOBJ hOrgBMP = SelectObject(hMemDC, hMemBmp);
+  DrawIconEx(hMemDC, 0, 0, hIcon, cx, cy, 0, GetSysColorBrush(COLOR_MENU), DI_NORMAL);
+  *hResult = hMemBmp;
+  hMemBmp = NULL;
+  SelectObject(hMemDC, hOrgBMP);
+  DeleteDC(hMemDC);
+  ReleaseDC(NULL, hDC);
+  DestroyIcon(hIcon);
 }
 
 static HMENU _tray_menu(tray_menu *m, UINT *id) {
   HMENU hmenu = CreatePopupMenu();
-  for (; m != NULL && m->text != NULL; m++, (*id)++) {
-    if (strcmp(m->text, "-") == 0) {
-      InsertMenu(hmenu, *id, MF_SEPARATOR, TRUE, "");
+  for (; m != NULL && (m->type == TRAY_MENU_TYPE_DIVIDER || m->text != NULL); m++, (*id)++) {
+    if (m->type == TRAY_MENU_TYPE_DIVIDER) {
+      InsertMenuW(hmenu, *id, MF_SEPARATOR, TRUE, L"");
     } else {
-      MENUITEMINFO item;
+      MENUITEMINFOW item;
       memset(&item, 0, sizeof(item));
-      item.cbSize = sizeof(MENUITEMINFO);
-      item.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE | MIIM_DATA;
+      item.cbSize = sizeof(MENUITEMINFOW);
+      item.fMask = MIIM_ID | MIIM_STATE | MIIM_STRING | MIIM_DATA;
       item.fType = 0;
       item.fState = 0;
       if (m->submenu != NULL) {
@@ -297,22 +322,25 @@ static HMENU _tray_menu(tray_menu *m, UINT *id) {
         item.hSubMenu = _tray_menu(m->submenu, id);
       }
       if (m->icon != NULL) {
-        item.fMask = item.fMask | MIIM_CHECKMARKS;
-       HBITMAP bitmap = (HBITMAP)LoadImage(NULL, m->icon, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        item.hbmpChecked = bitmap;
-        item.hbmpUnchecked = bitmap;
+        item.fMask = item.fMask | MIIM_BITMAP;
+        HICON hIcon = LoadImageW(NULL, m->icon, IMAGE_ICON, GetSystemMetrics(SM_CXMENUCHECK), GetSystemMetrics(SM_CYMENUCHECK), LR_LOADFROMFILE);
+        HBITMAP hBitmap;
+        Icon2Bitmap(hIcon, &hBitmap);
+        item.hbmpItem = hBitmap;
       }
-      if (m->disabled) {
-        item.fState |= MFS_DISABLED;
-      }
-      if (m->checked != TRAY_INVALID && m->checked) {
-        item.fState |= MFS_CHECKED;
+      if (m->disabled) item.fState |= MFS_DISABLED;
+      if (m->type == TRAY_MENU_TYPE_CHECKBOX) {
+        if (m->radio_check) {
+          item.fMask = item.fMask | MIIM_FTYPE;
+          item.fType = item.fType | MFT_RADIOCHECK;
+        }
+        if (m->checked) item.fState |= MFS_CHECKED;
       }
       item.wID = *id;
       item.dwTypeData = m->text;
       item.dwItemData = (ULONG_PTR)m;
 
-      InsertMenuItem(hmenu, *id, TRUE, &item);
+      InsertMenuItemW(hmenu, *id, TRUE, &item);
     }
   }
   return hmenu;
@@ -320,44 +348,43 @@ static HMENU _tray_menu(tray_menu *m, UINT *id) {
 
 static int tray_init(tray *tray) {
   memset(&wc, 0, sizeof(wc));
-  wc.cbSize = sizeof(WNDCLASSEX);
+  wc.cbSize = sizeof(WNDCLASSEXW);
   wc.lpfnWndProc = _tray_wnd_proc;
-  wc.hInstance = GetModuleHandle(NULL);
+  wc.hInstance = GetModuleHandleW(NULL);
   wc.lpszClassName = WC_TRAY_CLASS_NAME;
-  if (!RegisterClassEx(&wc)) {
-    return -1;
+  if (!RegisterClassExW(&wc)) {
+    return TRAY_ERROR;
   }
 
-  hwnd = CreateWindowEx(0, WC_TRAY_CLASS_NAME, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-  if (hwnd == NULL) {
-    return -1;
-  }
-  UpdateWindow(hwnd);
+  hWnd = CreateWindowExW(0, WC_TRAY_CLASS_NAME, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  if (hWnd == NULL) return TRAY_ERROR;
+  UpdateWindow(hWnd);
 
   memset(&nid, 0, sizeof(nid));
-  nid.cbSize = sizeof(NOTIFYICONDATA);
-  nid.hWnd = hwnd;
+  nid.cbSize = sizeof(NOTIFYICONDATAW);
+  nid.hWnd = hWnd;
   nid.uID = 0;
-  nid.uFlags = NIF_ICON | NIF_MESSAGE;
+  nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+  if (tray->title != NULL) wcscpy(nid.szTip, tray->title);
   nid.uCallbackMessage = WM_TRAY_CALLBACK_MESSAGE;
-  Shell_NotifyIcon(NIM_ADD, &nid);
+  Shell_NotifyIconW(NIM_ADD, &nid);
 
   tray_update(tray);
-  return 0;
+  return TRAY_SUCCESS;
 }
 
 static int tray_loop(int blocking) {
   MSG msg;
   if (blocking) {
-    GetMessage(&msg, NULL, 0, 0);
+    GetMessageW(&msg, NULL, 0, 0);
   } else {
-    PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
+    PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE);
   }
   if (msg.message == WM_QUIT) {
     return -1;
   }
   TranslateMessage(&msg);
-  DispatchMessage(&msg);
+  DispatchMessageW(&msg);
   return 0;
 }
 
@@ -365,14 +392,14 @@ static void tray_update(tray *tray) {
   HMENU prevmenu = hmenu;
   UINT id = ID_TRAY_FIRST;
   hmenu = _tray_menu(tray->menu, &id);
-  SendMessage(hwnd, WM_INITMENUPOPUP, (WPARAM)hmenu, 0);
+  SendMessageW(hWnd, WM_INITMENUPOPUP, (WPARAM)hmenu, 0);
   HICON icon;
-  ExtractIconEx(tray->icon, 0, NULL, &icon, 1);
+  ExtractIconExW(tray->icon, 0, NULL, &icon, 1);
   if (nid.hIcon) {
     DestroyIcon(nid.hIcon);
   }
   nid.hIcon = icon;
-  Shell_NotifyIcon(NIM_MODIFY, &nid);
+  Shell_NotifyIconW(NIM_MODIFY, &nid);
 
   if (prevmenu != NULL) {
     DestroyMenu(prevmenu);
@@ -380,7 +407,7 @@ static void tray_update(tray *tray) {
 }
 
 static void tray_exit() {
-  Shell_NotifyIcon(NIM_DELETE, &nid);
+  Shell_NotifyIconW(NIM_DELETE, &nid);
   if (nid.hIcon != 0) {
     DestroyIcon(nid.hIcon);
   }
@@ -388,7 +415,7 @@ static void tray_exit() {
     DestroyMenu(hmenu);
   }
   PostQuitMessage(0);
-  UnregisterClass(WC_TRAY_CLASS_NAME, GetModuleHandle(NULL));
+  UnregisterClassW(WC_TRAY_CLASS_NAME, GetModuleHandleW(NULL));
 }
 #else
 static int tray_init(tray *tray) { return TRAY_ERROR; }

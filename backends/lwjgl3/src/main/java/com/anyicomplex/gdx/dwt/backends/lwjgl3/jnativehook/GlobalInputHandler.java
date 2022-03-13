@@ -1,4 +1,4 @@
-package com.anyicomplex.gdx.dwt.backends.lwjgl3;
+package com.anyicomplex.gdx.dwt.backends.lwjgl3.jnativehook;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
