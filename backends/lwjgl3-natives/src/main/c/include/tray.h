@@ -5,14 +5,15 @@
 #define TRAY_ERROR -1
 
 #define TRAY_MENU_TYPE_NORMAL 0
-#define TRAY_MENU_TYPE_DIVIDER 1
+#define TRAY_MENU_TYPE_SEPARATOR 1
 #define TRAY_MENU_TYPE_CHECKBOX 2
 
 #define TRAY_LOOPING 0
 #define TRAY_EXITED -1
 
-#define TRAY_APPINDICATOR 1
+//#define TRAY_APPINDICATOR 1
 //#define TRAY_WINAPI 1
+#define TRAY_APPKIT 1
 
 typedef struct _tray_menu tray_menu;
 
@@ -64,10 +65,10 @@ static void _tray_menu_cb(GtkMenuItem *item, gpointer data) {
 
 static GtkMenuShell *_tray_menu(tray_menu *m) {
   GtkMenuShell *menu = (GtkMenuShell *)gtk_menu_new();
-  for (; m != NULL && (m->type == TRAY_MENU_TYPE_DIVIDER || m->text != NULL); m++) {
+  for (; m != NULL && (m->type == TRAY_MENU_TYPE_SEPARATOR || m->text != NULL); m++) {
     GtkWidget *item;
     if (m->submenu == NULL) {
-      if (m->type == TRAY_MENU_TYPE_DIVIDER) {
+      if (m->type == TRAY_MENU_TYPE_SEPARATOR) {
         item = gtk_separator_menu_item_new();
       }
       else {
@@ -307,8 +308,8 @@ static void Icon2Bitmap(HICON hIcon, HBITMAP *hResult) {
 
 static HMENU _tray_menu(tray_menu *m, UINT *id) {
   HMENU hmenu = CreatePopupMenu();
-  for (; m != NULL && (m->type == TRAY_MENU_TYPE_DIVIDER || m->text != NULL); m++, (*id)++) {
-    if (m->type == TRAY_MENU_TYPE_DIVIDER) {
+  for (; m != NULL && (m->type == TRAY_MENU_TYPE_SEPARATOR || m->text != NULL); m++, (*id)++) {
+    if (m->type == TRAY_MENU_TYPE_SEPARATOR) {
       InsertMenuW(hmenu, *id, MF_SEPARATOR, TRUE, L"");
     } else {
       MENUITEMINFOW item;
