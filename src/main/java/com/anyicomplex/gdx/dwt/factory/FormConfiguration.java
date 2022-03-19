@@ -61,6 +61,11 @@ public class FormConfiguration {
     public boolean windowHideMaximizeButton = false;
     public boolean windowHideMinimizeButton = false;
 
+    public boolean enableSystemTray = false;
+    public Files.FileType systemTrayIconFileType;
+    public String systemTrayIconPath;
+    public String systemTrayTooltip = null;
+
     public Form parentForm;
     public Form.FormType formType = Form.FormType.Normal;
 
@@ -118,6 +123,10 @@ public class FormConfiguration {
         debugStream = config.debugStream;
         windowHideMaximizeButton = config.windowHideMaximizeButton;
         windowHideMinimizeButton = config.windowHideMinimizeButton;
+        enableSystemTray = config.enableSystemTray;
+        systemTrayIconFileType = config.systemTrayIconFileType;
+        systemTrayIconPath = config.systemTrayIconPath;
+        systemTrayTooltip = config.systemTrayTooltip;
         parentForm = config.parentForm;
         formType = config.formType;
     }

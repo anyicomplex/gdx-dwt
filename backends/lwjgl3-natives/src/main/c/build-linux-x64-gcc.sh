@@ -12,14 +12,17 @@ gcc \
 $(pkg-config --cflags gtk+-3.0) \
 $(pkg-config --cflags fontconfig) \
 $(pkg-config --cflags x11) \
+$(pkg-config --cflags appindicator3-0.1) \
 -Iinclude \
 -Iinclude/linux \
 -I$LINUX_X64_JAVA_HOME/include \
 -I$LINUX_X64_JAVA_HOME/include/linux \
 src/linux/linux_natives.c \
+src/tray.c \
 -fpic \
 -shared \
 -o ../resources/$FILE_NAME \
 $(pkg-config --libs gtk+-3.0) \
 $(pkg-config --libs fontconfig) \
-$(pkg-config --libs x11)
+$(pkg-config --libs x11) \
+$(pkg-config --libs appindicator3-0.1)

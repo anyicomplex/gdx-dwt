@@ -4,47 +4,54 @@
 #define TRAY_SUCCESS 0
 #define TRAY_ERROR -1
 
-#define TRAY_MENU_TYPE_NORMAL 0
-#define TRAY_MENU_TYPE_SEPARATOR 1
-#define TRAY_MENU_TYPE_CHECKBOX 2
+#define TRAY_ITEM_TYPE_NORMAL 0
+#define TRAY_ITEM_TYPE_SEPARATOR 1
+#define TRAY_ITEM_TYPE_CHECKBOX 2
 
 #define TRAY_LOOPING 0
 #define TRAY_EXITED -1
 
-//#define TRAY_APPINDICATOR 1
-//#define TRAY_WINAPI 1
-#define TRAY_APPKIT 1
+#define TRAY_FALSE 0
+#define TRAY_TRUE (!TRAY_FALSE)
 
-typedef struct _tray_menu tray_menu;
+#if defined (_WIN32) || defined (_WIN64)
+#define TRAY_WINAPI 1
+#elif defined (__linux__) || defined (linux) || defined (__linux)
+#define TRAY_APPINDICATOR 1
+#elif defined (__APPLE__) || defined (__MACH__)
+#define TRAY_APPKIT 1
+#endif
+
+typedef struct _tray_item tray_item;
 
 typedef struct _tray {
   #ifdef TRAY_WINAPI
-  wchar_t *title;
-  wchar_t *icon;
+  wchar_t *tooltip;
+  wchar_t *icon_path;
   #else
-  char *title;
-  char *icon;
+  char *tooltip;
+  char *icon_path;
   #endif
-  tray_menu *menu;
+  tray_item **items;
 } tray;
 
-struct _tray_menu {
+struct _tray_item {
   #ifdef TRAY_WINAPI
-  wchar_t *icon;
   wchar_t *text;
+  wchar_t *icon_path;
   #else
-  char *icon;
   char *text;
+  char *icon_path;
   #endif
   int disabled;
   int checked;
   int radio_check;
   int type;
 
-  void (*cb)(tray_menu *);
+  void (*cb)(tray_item *);
   void *context;
 
-  tray_menu *submenu;
+  tray_item **items;
 };
 
 static void tray_update(tray *tray);
@@ -54,46 +61,47 @@ static void tray_update(tray *tray);
 #include <gtk/gtk.h>
 #include <libappindicator/app-indicator.h>
 
+#define TRAY_APPINDICATOR_ID "libsystemtray"
+
 static AppIndicator *indicator = NULL;
 static int loop_result = TRAY_LOOPING;
 
-static void _tray_menu_cb(GtkMenuItem *item, gpointer data) {
+static void _tray_item_cb(GtkMenuItem *item, gpointer data) {
   (void)item;
-  tray_menu *m = (tray_menu *)data;
+  tray_item *m = (tray_item *)data;
   m->cb(m);
 }
 
-static GtkMenuShell *_tray_menu(tray_menu *m) {
+static GtkMenuShell *_tray_item(tray_item **pm) {
   GtkMenuShell *menu = (GtkMenuShell *)gtk_menu_new();
-  for (; m != NULL && (m->type == TRAY_MENU_TYPE_SEPARATOR || m->text != NULL); m++) {
+  for (; pm != NULL && *pm != NULL && ((*pm)->type == TRAY_ITEM_TYPE_SEPARATOR || (*pm)->text != NULL); pm++) {
+    tray_item *m = *pm;
     GtkWidget *item;
-    if (m->submenu == NULL) {
-      if (m->type == TRAY_MENU_TYPE_SEPARATOR) {
+    if (m->items == NULL) {
+      if (m->type == TRAY_ITEM_TYPE_SEPARATOR) {
         item = gtk_separator_menu_item_new();
       }
       else {
-        if (m->icon == NULL) {
-          if (m->type == TRAY_MENU_TYPE_CHECKBOX) {
+        if (m->icon_path == NULL) {
+          if (m->type == TRAY_ITEM_TYPE_CHECKBOX) {
             item = gtk_check_menu_item_new_with_label(m->text);
             if (m->radio_check) gtk_check_menu_item_set_draw_as_radio(GTK_CHECK_MENU_ITEM(item), TRUE);
-            gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), !!m->checked);
+            gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), m->checked);
           }
           else item = gtk_menu_item_new_with_label(m->text);
         }
         else {
           item = gtk_image_menu_item_new_with_label(m->text);
-          GtkWidget *image;
-          if (strncmp(m->icon, "/", 1) == 0) image = gtk_image_new_from_file(m->icon);
-          else image = gtk_image_new_from_icon_name(m->icon, GTK_ICON_SIZE_MENU);
+          GtkWidget *image = gtk_image_new_from_file(m->icon_path);
           gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
         }
         gtk_widget_set_sensitive(item, !m->disabled);
-        if (m->cb != NULL) g_signal_connect(item, "activate", G_CALLBACK(_tray_menu_cb), m);
+        if (m->cb != NULL) g_signal_connect(item, "activate", G_CALLBACK(_tray_item_cb), m);
       }
     }
     else  {
       item = gtk_menu_item_new_with_label(m->text);
-      gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), GTK_WIDGET(_tray_menu(m->submenu)));
+      gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), GTK_WIDGET(_tray_item(m->items)));
     }
     gtk_widget_show(item);
     gtk_menu_shell_append(menu, item);
@@ -105,8 +113,9 @@ static int tray_init(tray *tray) {
   if (gtk_init_check(0, NULL) == FALSE) {
     return TRAY_ERROR;
   }
-  indicator = app_indicator_new(tray->title == NULL ? "gdwt-tray" : tray->title, tray->icon, APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-  if (tray->title != NULL) app_indicator_set_title(indicator, tray->title);
+  GFile *gfile = g_file_new_for_path(tray->icon_path);
+  indicator = app_indicator_new_with_path(TRAY_APPINDICATOR_ID, g_file_get_basename(gfile), 
+  APP_INDICATOR_CATEGORY_APPLICATION_STATUS, g_file_get_path(g_file_get_parent(gfile)));
   app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
   tray_update(tray);
   return TRAY_SUCCESS;
@@ -118,12 +127,17 @@ static int tray_loop(int blocking) {
 }
 
 static void tray_update(tray *tray) {
-  app_indicator_set_icon(indicator, tray->icon);
+  GFile *gfile = g_file_new_for_path(tray->icon_path);
+  app_indicator_set_icon(indicator, g_file_get_basename(gfile));
+  app_indicator_set_icon_theme_path(indicator, g_file_get_path(g_file_get_parent(gfile)));
   // GTK is all about reference counting, so previous menu should be destroyed here
-  app_indicator_set_menu(indicator, GTK_MENU(_tray_menu(tray->menu)));
+  if (tray->tooltip != NULL) app_indicator_set_title(indicator, tray->tooltip);
+  app_indicator_set_menu(indicator, GTK_MENU(_tray_item(tray->items)));
 }
 
-static void tray_exit() { loop_result = TRAY_EXITED; }
+static void tray_exit() {
+  loop_result = TRAY_EXITED;
+}
 
 #elif defined(TRAY_APPKIT)
 
@@ -136,7 +150,7 @@ static id statusBar;
 static id statusItem;
 static id statusBarButton;
 
-static id _tray_menu(struct tray_menu *m) {
+static id _tray_item(struct tray_item *m) {
     id menu = objc_msgSend((id)objc_getClass("NSMenu"), sel_registerName("new"));
     objc_msgSend(menu, sel_registerName("autorelease"));
     objc_msgSend(menu, sel_registerName("setAutoenablesItems:"), false);
@@ -161,7 +175,7 @@ static id _tray_menu(struct tray_menu *m) {
           objc_msgSend(menu, sel_registerName("addItem:"), menuItem);
   
           if (m->submenu != NULL) {
-            objc_msgSend(menu, sel_registerName("setSubmenu:forItem:"), _tray_menu(m->submenu), menuItem);
+            objc_msgSend(menu, sel_registerName("setSubmenu:forItem:"), _tray_item(m->submenu), menuItem);
       }
     }
   }
@@ -170,8 +184,8 @@ static id _tray_menu(struct tray_menu *m) {
 }
 
 static void menu_callback(id self, SEL cmd, id sender) {
-  struct tray_menu *m =
-      (struct tray_menu *)objc_msgSend(objc_msgSend(sender, sel_registerName("representedObject")), 
+  struct tray_item *m =
+      (struct tray_item *)objc_msgSend(objc_msgSend(sender, sel_registerName("representedObject")), 
                   sel_registerName("pointerValue"));
 
     if (m != NULL && m->cb != NULL) {
@@ -235,7 +249,7 @@ static void tray_update(struct tray *tray) {
     objc_msgSend((id)objc_getClass("NSImage"), sel_registerName("imageNamed:"), 
       objc_msgSend((id)objc_getClass("NSString"), sel_registerName("stringWithUTF8String:"), tray->icon)));
 
-  objc_msgSend(statusItem, sel_registerName("setMenu:"), _tray_menu(tray->menu));
+  objc_msgSend(statusItem, sel_registerName("setMenu:"), _tray_item(tray->menu));
 }
 
 static void tray_exit() { objc_msgSend(app, sel_registerName("terminate:"), app); }
@@ -243,10 +257,19 @@ static void tray_exit() { objc_msgSend(app, sel_registerName("terminate:"), app)
 #elif defined(TRAY_WINAPI)
 #include <windows.h>
 #include <shellapi.h>
+#include <gdiplus.h>
+#include <gdiplusflat.h>
 
 #define WM_TRAY_CALLBACK_MESSAGE (WM_USER + 1)
 #define WC_TRAY_CLASS_NAME L"TRAY"
 #define ID_TRAY_FIRST 1000
+
+static HBITMAP decodeData(char *icon_data, size_t icon_data_length) {
+  GpBitmap *bitmap;
+  IStream istream;
+  //GdipCreateBitmapFromFile()
+  //GdipCreateBitmapFromStream()
+}
 
 static WNDCLASSEXW wc;
 static NOTIFYICONDATAW nid;
@@ -278,7 +301,7 @@ static LRESULT CALLBACK _tray_wnd_proc(HWND hWnd, UINT msg, WPARAM wparam, LPARA
           .fMask = MIIM_ID | MIIM_DATA
       };
       if (GetMenuItemInfoW(hmenu, wparam, FALSE, &item)) {
-        tray_menu *menu = (tray_menu *)item.dwItemData;
+        tray_item *menu = (tray_item *)item.dwItemData;
         if (menu != NULL && menu->cb != NULL) {
           menu->cb(menu);
         }
@@ -306,10 +329,11 @@ static void Icon2Bitmap(HICON hIcon, HBITMAP *hResult) {
   DestroyIcon(hIcon);
 }
 
-static HMENU _tray_menu(tray_menu *m, UINT *id) {
+static HMENU _tray_item(tray_item **pm, UINT *id) {
   HMENU hmenu = CreatePopupMenu();
-  for (; m != NULL && (m->type == TRAY_MENU_TYPE_SEPARATOR || m->text != NULL); m++, (*id)++) {
-    if (m->type == TRAY_MENU_TYPE_SEPARATOR) {
+  for (; pm != NULL && *pm != NULL && ((*pm)->type == TRAY_ITEM_TYPE_SEPARATOR || (*pm)->text != NULL); pm++, (*id)++) {
+    tray_item *m = *pm;
+    if (m->type == TRAY_ITEM_TYPE_SEPARATOR) {
       InsertMenuW(hmenu, *id, MF_SEPARATOR, TRUE, L"");
     } else {
       MENUITEMINFOW item;
@@ -318,9 +342,9 @@ static HMENU _tray_menu(tray_menu *m, UINT *id) {
       item.fMask = MIIM_ID | MIIM_STATE | MIIM_STRING | MIIM_DATA;
       item.fType = 0;
       item.fState = 0;
-      if (m->submenu != NULL) {
+      if (m->items != NULL) {
         item.fMask = item.fMask | MIIM_SUBMENU;
-        item.hSubMenu = _tray_menu(m->submenu, id);
+        item.hSubMenu = _tray_item(m->items, id);
       }
       if (m->icon != NULL) {
         item.fMask = item.fMask | MIIM_BITMAP;
@@ -330,7 +354,7 @@ static HMENU _tray_menu(tray_menu *m, UINT *id) {
         item.hbmpItem = hBitmap;
       }
       if (m->disabled) item.fState |= MFS_DISABLED;
-      if (m->type == TRAY_MENU_TYPE_CHECKBOX) {
+      if (m->type == TRAY_ITEM_TYPE_CHECKBOX) {
         if (m->radio_check) {
           item.fMask = item.fMask | MIIM_FTYPE;
           item.fType = item.fType | MFT_RADIOCHECK;
@@ -366,7 +390,6 @@ static int tray_init(tray *tray) {
   nid.hWnd = hWnd;
   nid.uID = 0;
   nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
-  if (tray->title != NULL) wcscpy(nid.szTip, tray->title);
   nid.uCallbackMessage = WM_TRAY_CALLBACK_MESSAGE;
   Shell_NotifyIconW(NIM_ADD, &nid);
 
@@ -392,14 +415,17 @@ static int tray_loop(int blocking) {
 static void tray_update(tray *tray) {
   HMENU prevmenu = hmenu;
   UINT id = ID_TRAY_FIRST;
-  hmenu = _tray_menu(tray->menu, &id);
+  hmenu = _tray_item(tray->items, &id);
   SendMessageW(hWnd, WM_INITMENUPOPUP, (WPARAM)hmenu, 0);
   HICON icon;
-  ExtractIconExW(tray->icon, 0, NULL, &icon, 1);
+  GpBitmap *bitmap;
+  GdipCreateBitmapFromFile(tray->icon, &bitmap);
+  GdipCreateHICONFromBitmap(bitmap, &icon);
   if (nid.hIcon) {
     DestroyIcon(nid.hIcon);
   }
   nid.hIcon = icon;
+  if (tray->tooltip != NULL) wcscpy(nid.szTip, tray->tooltip);
   Shell_NotifyIconW(NIM_MODIFY, &nid);
 
   if (prevmenu != NULL) {

@@ -9,18 +9,16 @@ import com.anyicomplex.gdx.dwt.factory.FormConfiguration;
 import com.anyicomplex.gdx.dwt.factory.FormListener;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener;
+import com.badlogic.gdx.backends.lwjgl3.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.SharedLibraryLoader;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWNativeWin32;
 
 import java.nio.IntBuffer;
+
+import static com.badlogic.gdx.utils.SharedLibraryLoader.isWindows;
 
 public class Lwjgl3Form extends Form {
 
@@ -29,6 +27,7 @@ public class Lwjgl3Form extends Form {
     private final FormType formType;
 
     private final ApplicationListener applicationListener;
+    private final FormConfiguration formConfig;
     private final Lwjgl3ApplicationConfiguration lwjgl3Config;
     private final boolean isRootForm;
 
@@ -62,7 +61,7 @@ public class Lwjgl3Form extends Form {
         this.tmpBuffer = BufferUtils.createIntBuffer(1);
         this.tmpBuffer2 = BufferUtils.createIntBuffer(1);
         applicationListener = listener;
-        FormConfiguration formConfig = FormConfiguration.copy(config);
+        formConfig = FormConfiguration.copy(config);
         lwjgl3Config = Lwjgl3Factory.generateLwjgl3Config(formConfig);
         lwjgl3Config.setInitialVisible(false);
         FormListener formListener = formConfig.formListener;
@@ -138,7 +137,7 @@ public class Lwjgl3Form extends Form {
             public boolean closeRequested() {
                 if (formListener == null) {
                     closeAllChildForms();
-                    if (SharedLibraryLoader.isWindows && formType == FormType.Dialog && parentForm != null)
+                    if (isWindows && formType == FormType.Dialog && parentForm != null)
                         WindowsNatives.enableWindow(GLFWNativeWin32.glfwGetWin32Window(((Lwjgl3Form) parentForm).window.getWindowHandle()), true);
                     return true;
                 }
@@ -146,7 +145,7 @@ public class Lwjgl3Form extends Form {
                     boolean close = formListener.closeRequested();
                     if (close) {
                         closeAllChildForms();
-                        if (SharedLibraryLoader.isWindows && formType == FormType.Dialog && parentForm != null)
+                        if (isWindows && formType == FormType.Dialog && parentForm != null)
                             WindowsNatives.enableWindow(GLFWNativeWin32.glfwGetWin32Window(((Lwjgl3Form) parentForm).window.getWindowHandle()), true);
                     }
                     return close;
@@ -168,7 +167,20 @@ public class Lwjgl3Form extends Form {
 
     public void loop() {
         if (isRootForm) {
+            if (formConfig.enableSystemTray) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Lwjgl3Tray.init(formConfig.systemTrayTooltip,
+                                new Lwjgl3FileHandle(formConfig.systemTrayIconPath, formConfig.systemTrayIconFileType));
+                        while (true) {
+                            if (!Lwjgl3Tray.loop(false)) break;
+                        }
+                    }
+                }).start();
+            }
             new Lwjgl3Application(applicationListener, lwjgl3Config);
+            if (formConfig.enableSystemTray) Lwjgl3Tray.unInit();
         }
         else {
             throw new GdxRuntimeException("Not root form!");

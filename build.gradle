@@ -38,6 +38,7 @@ project(":backends:lwjgl3") {
         if (System.getProperty("os.name").toLowerCase().contains('linux')) {
             implementation 'io.github.anyicomplex:xdg-utils-java:1.1.3'
         }
+        implementation project(":backends:lwjgl3-natives");
     }
     task uberJar(type: Jar, dependsOn: jar) {
         archiveBaseName.set(rootProject.name)
