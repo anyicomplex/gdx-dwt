@@ -132,7 +132,7 @@ public class Lwjgl3TmpFiles {
                 if (file == null) throw new IllegalStateException("Resource file extraction path is invalid!");
                 result = new Lwjgl3FileHandle(file, Files.FileType.Absolute);
                 if (!result.exists()) result.write(inputFile.read(), false);
-                if (!ChecksumUtils.sha512(result.read()).equals(sha512)) result.write(inputFile.read(), false);
+                if (!ChecksumUtils.sha512(result.read()).equalsIgnoreCase(sha512)) result.write(inputFile.read(), false);
             }
             catch (RuntimeException e) {
                 file = getTmpFileWithLibPath(inputFile.name());

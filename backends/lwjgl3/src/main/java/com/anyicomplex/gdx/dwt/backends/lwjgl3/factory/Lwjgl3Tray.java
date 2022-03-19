@@ -3,7 +3,6 @@ package com.anyicomplex.gdx.dwt.backends.lwjgl3.factory;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.Lwjgl3TmpFiles;
 import com.anyicomplex.gdx.dwt.utils.ChecksumUtils;
 import com.badlogic.gdx.Files;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3FileHandle;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Files;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
@@ -31,6 +30,7 @@ public class Lwjgl3Tray {
     private static final Array<Lwjgl3TrayItem> items = new Array<>();
 
     private static volatile FileHandle icon;
+    private static volatile FileHandle tmp;
 
     public static void setTooltip(String tooltip) {
         checkInitted();
@@ -72,6 +72,7 @@ public class Lwjgl3Tray {
         if (icon == null || !icon.exists() || icon.isDirectory()) {
             throw new IllegalArgumentException("icon not available!");
         }
+        if (tmp != null) tmp.delete();
         if (iconBuffer != null) MemoryUtil.memFree(iconBuffer);
         String filePath;
         if (isLinux) {
@@ -88,9 +89,13 @@ public class Lwjgl3Tray {
                     if (!icon.extension().equalsIgnoreCase("png")) shouldCopy = true;
                     break;
             }
-            if (shouldCopy) filePath = Lwjgl3TmpFiles.getTmpImage(icon, ChecksumUtils.sha512(icon.read()) + ".png",
-                    true).pathWithoutExtension();
+            if (shouldCopy) {
+                tmp = Lwjgl3TmpFiles.getTmpImage(icon, ChecksumUtils.sha512(icon.read()) + "." + icon.extension() + ".png",
+                        true);
+                filePath = tmp.pathWithoutExtension();
+            }
             else {
+                tmp = null;
                 if (icon.type() == Files.FileType.Local) filePath = new FileHandle(new File(Lwjgl3Files.localPath, icon.path())).pathWithoutExtension();
                 else filePath = icon.pathWithoutExtension();
             }
@@ -100,7 +105,8 @@ public class Lwjgl3Tray {
                 case Internal:
                 case Classpath:
                 default:
-                    filePath = Lwjgl3TmpFiles.getTmpImage(icon).file().getAbsolutePath();
+                    tmp = Lwjgl3TmpFiles.getTmpImage(icon);
+                    filePath = tmp.file().getAbsolutePath();
                     break;
                 case Local:
                     filePath = new File(Lwjgl3Files.localPath, icon.path()).getAbsolutePath();

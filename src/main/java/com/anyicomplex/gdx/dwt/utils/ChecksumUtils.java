@@ -719,7 +719,7 @@ public final class ChecksumUtils {
     private static String byteArray2HexString(byte[] input) {
         StringBuilder hex = new StringBuilder();
         for (byte b : input) {
-            hex.append(String.format("%02X", b));
+            hex.append(String.format("%02x", b));
         }
         while (hex.length() < 32) hex.insert(0, '0');
         return hex.toString();

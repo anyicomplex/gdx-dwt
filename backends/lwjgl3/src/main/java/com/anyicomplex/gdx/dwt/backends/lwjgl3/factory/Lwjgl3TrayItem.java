@@ -97,6 +97,7 @@ public class Lwjgl3TrayItem implements Disposable, Disableable {
     }
 
     private volatile FileHandle icon;
+    private volatile FileHandle tmp;
 
     public void setIcon(FileHandle icon) {
         checkDisposed();
@@ -104,13 +105,15 @@ public class Lwjgl3TrayItem implements Disposable, Disableable {
             nsetIcon(handle, 0);
             return;
         }
+        if (tmp != null) tmp.delete();
         if (iconBuffer != null) MemoryUtil.memFree(iconBuffer);
         String filePath;
         switch (icon.type()) {
             case Internal:
             case Classpath:
             default:
-                filePath = Lwjgl3TmpFiles.getTmpImage(icon).file().getAbsolutePath();
+                tmp = Lwjgl3TmpFiles.getTmpImage(icon);
+                filePath = tmp.file().getAbsolutePath();
                 break;
             case Local:
                 filePath = new File(Lwjgl3Files.localPath, icon.path()).getAbsolutePath();
