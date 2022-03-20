@@ -1,5 +1,6 @@
 package com.anyicomplex.gdx.dwt.backends.lwjgl3.factory;
 
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.Lwjgl3FilePaths;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.Lwjgl3TmpFiles;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Files;
 import com.badlogic.gdx.files.FileHandle;
@@ -13,6 +14,8 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
+import static com.badlogic.gdx.utils.SharedLibraryLoader.isWindows;
+
 public class Lwjgl3TrayItem implements Disposable, Disableable {
 
     public interface OnClickListener {
@@ -21,7 +24,7 @@ public class Lwjgl3TrayItem implements Disposable, Disableable {
 
     private volatile OnClickListener onClickListener;
 
-    private void performClick() {
+    public void performClick() {
         if (onClickListener == null || onClickListener.onClick(this)) Lwjgl3Tray.update();
     }
 
@@ -123,7 +126,10 @@ public class Lwjgl3TrayItem implements Disposable, Disableable {
                 filePath = icon.file().getAbsolutePath();
                 break;
         }
-        byte[] content = filePath.getBytes(StandardCharsets.UTF_8);
+        filePath = Lwjgl3FilePaths.convertSeparatorsToNativeStyle(filePath);
+        byte[] content;
+        if (isWindows) content = filePath.getBytes(StandardCharsets.UTF_16LE);
+        else content = filePath.getBytes(StandardCharsets.UTF_8);
         iconBuffer = MemoryUtil.memAlloc(content.length + 1);
         MemoryUtil.memSet(iconBuffer, 0);
         iconBuffer.put(content);
@@ -144,7 +150,9 @@ public class Lwjgl3TrayItem implements Disposable, Disableable {
             return;
         }
         if (textBuffer != null) MemoryUtil.memFree(textBuffer);
-        byte[] content = text.getBytes(StandardCharsets.UTF_8);
+        byte[] content;
+        if (isWindows) content = text.getBytes(StandardCharsets.UTF_16LE);
+        else content = text.getBytes(StandardCharsets.UTF_8);
         textBuffer = MemoryUtil.memAlloc(content.length + 1);
         MemoryUtil.memSet(textBuffer, 0);
         textBuffer.put(content);
@@ -213,6 +221,7 @@ public class Lwjgl3TrayItem implements Disposable, Disableable {
         if ((text == null || text.length() < 1) && type != Lwjgl3TrayItemType.Separator)
             throw new IllegalArgumentException("Text can only be empty if type is separator.");
         handle = nalloc();
+        if (handle == 0) throw new IllegalStateException("Failed to allocate Lwjgl3TrayItem.");
         setText(text);
         setType(type);
         nsetCallback(handle);
@@ -234,6 +243,7 @@ public class Lwjgl3TrayItem implements Disposable, Disableable {
 
     void update() {
         checkDisposed();
+        setIcon(icon);
         if (itemsBuffer != null) MemoryUtil.memFree(itemsBuffer);
         if (items.size >= 1) {
             itemsBuffer = MemoryUtil.memAllocPointer(items.size + 1);

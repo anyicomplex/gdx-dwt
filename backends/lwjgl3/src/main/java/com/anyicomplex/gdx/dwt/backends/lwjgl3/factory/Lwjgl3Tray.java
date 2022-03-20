@@ -1,5 +1,6 @@
 package com.anyicomplex.gdx.dwt.backends.lwjgl3.factory;
 
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.Lwjgl3FilePaths;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.Lwjgl3TmpFiles;
 import com.anyicomplex.gdx.dwt.utils.ChecksumUtils;
 import com.badlogic.gdx.Files;
@@ -14,13 +15,13 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import static com.badlogic.gdx.utils.SharedLibraryLoader.isLinux;
+import static com.badlogic.gdx.utils.SharedLibraryLoader.isWindows;
 
 public class Lwjgl3Tray {
 
     private Lwjgl3Tray(){}
 
     private static long handle;
-    static volatile boolean allocated = false;
     static volatile boolean initialized = false;
 
     private static ByteBuffer iconBuffer;
@@ -43,7 +44,9 @@ public class Lwjgl3Tray {
             return;
         }
         if (tooltipBuffer != null) MemoryUtil.memFree(tooltipBuffer);
-        byte[] content = tooltip.getBytes(StandardCharsets.UTF_8);
+        byte[] content;
+        if (isWindows) content = tooltip.getBytes(StandardCharsets.UTF_16LE);
+        else content = tooltip.getBytes(StandardCharsets.UTF_8);
         tooltipBuffer = MemoryUtil.memAlloc(content.length + 1);
         MemoryUtil.memSet(tooltipBuffer, 0);
         tooltipBuffer.put(content);
@@ -117,7 +120,10 @@ public class Lwjgl3Tray {
                     break;
             }
         }
-        byte[] content = filePath.getBytes(StandardCharsets.UTF_8);
+        filePath = Lwjgl3FilePaths.convertSeparatorsToNativeStyle(filePath);
+        byte[] content;
+        if (isWindows) content = filePath.getBytes(StandardCharsets.UTF_16LE);
+        else content = filePath.getBytes(StandardCharsets.UTF_8);
         iconBuffer = MemoryUtil.memAlloc(content.length + 1);
         MemoryUtil.memSet(iconBuffer, 0);
         iconBuffer.put(content);
@@ -202,11 +208,9 @@ public class Lwjgl3Tray {
     }
 
     static boolean init(String tooltip, FileHandle icon) {
-        if (!allocated) {
-            allocated = true;
-            handle = nalloc();
-        }
         if (initialized) throw new IllegalStateException("Cannot init twice!");
+        handle = nalloc();
+        if (handle == 0) throw new IllegalStateException("Failed to allocate Lwjgl3Tray.");
         nsetTooltip(tooltip);
         nsetIcon(icon);
         initialized = ninit(handle);
@@ -214,15 +218,14 @@ public class Lwjgl3Tray {
     }
 
     private static void checkInitted() {
-        if (!(allocated && initialized)) throw new IllegalStateException("The system tray is not initialized!");
+        if (!initialized) throw new IllegalStateException("The system tray is not initialized!");
     }
 
     static void unInit() {
         checkInitted();
         nexit();
-        initialized = false;
         nfree(handle);
-        allocated = false;
+        initialized = false;
         if (iconBuffer != null) MemoryUtil.memFree(iconBuffer);
         if (itemsBuffer != null) MemoryUtil.memFree(itemsBuffer);
         if (tooltipBuffer != null) MemoryUtil.memFree(tooltipBuffer);
@@ -232,12 +235,13 @@ public class Lwjgl3Tray {
     }
 
     static boolean loop(boolean blocking) {
-        checkInitted();
+        if (!initialized) return false;
         return nloop(blocking);
     }
 
     public static void update() {
         checkInitted();
+        setIcon(icon);
         if (itemsBuffer != null) MemoryUtil.memFree(itemsBuffer);
         if (items.size >= 1) {
             itemsBuffer = MemoryUtil.memAllocPointer(items.size + 1);

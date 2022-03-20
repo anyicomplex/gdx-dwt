@@ -44,7 +44,7 @@ public class Lwjgl3Toolkit implements Toolkit {
         return rootForm;
     }
 
-    private static void preload() {
+    static  {
         if (Lwjgl3TmpFiles.getTmpStorageDir() == null) throw new IllegalStateException("Resource file extraction path is invalid!");
         // LWJGL3
         System.setProperty("org.lwjgl.system.SharedLibraryExtractPath", Lwjgl3FilePaths.build(
@@ -72,7 +72,6 @@ public class Lwjgl3Toolkit implements Toolkit {
 
     public Lwjgl3Toolkit(ApplicationListener listener, FormConfiguration config) {
         if (System.getProperty("os.name").equalsIgnoreCase("freebsd")) isLinux = true;
-        preload();
         try {
             GlobalScreen.registerNativeHook();
         }

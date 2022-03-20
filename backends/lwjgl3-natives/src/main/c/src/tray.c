@@ -68,15 +68,12 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_factory_Lwjg
 
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_factory_Lwjgl3Tray_nsetTooltip
   (JNIEnv *env, jclass clazz, jlong handle, jlong tooltip) {
-      #ifdef  TRAY_WINAPI
-      #else
       ((tray *)handle)->tooltip = tooltip;
-      #endif
   }
 
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_factory_Lwjgl3Tray_nsetIcon
-  (JNIEnv *env, jclass clazz, jlong handle, jlong buffer) {
-    ((tray *)handle)->icon_path = buffer;
+  (JNIEnv *env, jclass clazz, jlong handle, jlong icon_path) {
+    ((tray *)handle)->icon_path = icon_path;
   }
 
 JNIEXPORT jlong JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_factory_Lwjgl3Tray_nsetItems
@@ -111,16 +108,13 @@ JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_factory_Lwjg
   }
 
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_factory_Lwjgl3TrayItem_nsetIcon
-  (JNIEnv *env, jclass clazz, jlong handle, jlong buffer) {
-    ((tray *)handle)->icon_path = buffer;
+  (JNIEnv *env, jclass clazz, jlong handle, jlong icon_path) {
+    ((tray *)handle)->icon_path = icon_path;
   }
 
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_factory_Lwjgl3TrayItem_nsetText
   (JNIEnv *env, jclass clazz, jlong handle, jlong text) {
-    #ifdef  TRAY_WINAPI
-    #else
     ((tray_item *)handle)->text = text;
-    #endif
   }
 
 JNIEXPORT void JNICALL Java_com_anyicomplex_gdx_dwt_backends_lwjgl3_factory_Lwjgl3TrayItem_nsetDisabled

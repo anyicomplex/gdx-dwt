@@ -264,13 +264,6 @@ static void tray_exit() { objc_msgSend(app, sel_registerName("terminate:"), app)
 #define WC_TRAY_CLASS_NAME L"TRAY"
 #define ID_TRAY_FIRST 1000
 
-static HBITMAP decodeData(char *icon_data, size_t icon_data_length) {
-  GpBitmap *bitmap;
-  IStream istream;
-  //GdipCreateBitmapFromFile()
-  //GdipCreateBitmapFromStream()
-}
-
 static WNDCLASSEXW wc;
 static NOTIFYICONDATAW nid;
 static HWND hWnd;
@@ -313,16 +306,16 @@ static LRESULT CALLBACK _tray_wnd_proc(HWND hWnd, UINT msg, WPARAM wparam, LPARA
   return DefWindowProcW(hWnd, msg, wparam, lparam);
 }
 
-static void Icon2Bitmap(HICON hIcon, HBITMAP *hResult) {
+static void ConvertIconToBitmap(HBITMAP hIcon, HBITMAP *hBitmap) {
   HDC hDC = GetDC(NULL);
   HDC hMemDC = CreateCompatibleDC(hDC);
   int cx = GetSystemMetrics(SM_CXMENUCHECK);
   int cy = GetSystemMetrics(SM_CYMENUCHECK);
-  HBITMAP hMemBmp = CreateCompatibleBitmap(hDC, cx, cy);
-  HGDIOBJ hOrgBMP = SelectObject(hMemDC, hMemBmp);
+  HBITMAP hTmpBitmap = CreateCompatibleBitmap(hDC, cx, cy);
+  HGDIOBJ hOrgBMP = SelectObject(hMemDC, hTmpBitmap);
   DrawIconEx(hMemDC, 0, 0, hIcon, cx, cy, 0, GetSysColorBrush(COLOR_MENU), DI_NORMAL);
-  *hResult = hMemBmp;
-  hMemBmp = NULL;
+  *hBitmap = hTmpBitmap;
+  hTmpBitmap = NULL;
   SelectObject(hMemDC, hOrgBMP);
   DeleteDC(hMemDC);
   ReleaseDC(NULL, hDC);
@@ -346,11 +339,16 @@ static HMENU _tray_item(tray_item **pm, UINT *id) {
         item.fMask = item.fMask | MIIM_SUBMENU;
         item.hSubMenu = _tray_item(m->items, id);
       }
-      if (m->icon != NULL) {
+      if (m->icon_path != NULL) {
         item.fMask = item.fMask | MIIM_BITMAP;
-        HICON hIcon = LoadImageW(NULL, m->icon, IMAGE_ICON, GetSystemMetrics(SM_CXMENUCHECK), GetSystemMetrics(SM_CYMENUCHECK), LR_LOADFROMFILE);
+        HICON hIcon;
+        GpBitmap *bitmap;
+        if (ExtractIconExW(m->icon_path, 0, NULL, &hIcon, 1) <= 0) {
+          GdipCreateBitmapFromFile(m->icon_path, &bitmap);
+          GdipCreateHICONFromBitmap(bitmap, &hIcon);
+        }
         HBITMAP hBitmap;
-        Icon2Bitmap(hIcon, &hBitmap);
+        ConvertIconToBitmap(hIcon, &hBitmap);
         item.hbmpItem = hBitmap;
       }
       if (m->disabled) item.fState |= MFS_DISABLED;
@@ -417,14 +415,16 @@ static void tray_update(tray *tray) {
   UINT id = ID_TRAY_FIRST;
   hmenu = _tray_item(tray->items, &id);
   SendMessageW(hWnd, WM_INITMENUPOPUP, (WPARAM)hmenu, 0);
-  HICON icon;
-  GpBitmap *bitmap;
-  GdipCreateBitmapFromFile(tray->icon, &bitmap);
-  GdipCreateHICONFromBitmap(bitmap, &icon);
+  HICON hIcon;
+  if (ExtractIconExW(tray->icon_path, 0, NULL, &hIcon, 1) <= 0) {
+    GpBitmap *bitmap;
+    GdipCreateBitmapFromFile(tray->icon_path, &bitmap);
+    GdipCreateHICONFromBitmap(bitmap, &hIcon);
+  }
   if (nid.hIcon) {
     DestroyIcon(nid.hIcon);
   }
-  nid.hIcon = icon;
+  nid.hIcon = hIcon;
   if (tray->tooltip != NULL) wcscpy(nid.szTip, tray->tooltip);
   Shell_NotifyIconW(NIM_MODIFY, &nid);
 
