@@ -25,8 +25,6 @@
 
 package com.anyicomplex.gdx.dwt.backends.lwjgl3.utils;
 
-import com.badlogic.gdx.utils.SharedLibraryLoader;
-
 import java.io.File;
 
 import static com.badlogic.gdx.utils.SharedLibraryLoader.*;
@@ -34,17 +32,17 @@ import static com.badlogic.gdx.utils.SharedLibraryLoader.*;
 /**
  * Simple utility class that helps to work with file paths.
  */
-public class Lwjgl3FilePaths {
+public class FilePaths {
 
-    private Lwjgl3FilePaths(){}
+    private FilePaths(){}
 
     /**
      * <p>Build given paths to a single string, will convert all separators to '/' and remove spaces at start and end of each string.</p>
      * <p><b>Note:</b> No guarantee of generated path valid if paths contains invalid string or illegal char.<br>
      * <b>Note:</b> Returned path ends without a file separator.</p>
      *
-     * @see Lwjgl3FilePaths#removeStartEndSpaces(String)
-     * @see Lwjgl3FilePaths#convertSeparatorsToUnixStyle(String)
+     * @see FilePaths#removeStartEndSpaces(String)
+     * @see FilePaths#convertSeparatorsToUnixStyle(String)
      *
      * @param paths paths to build
      * @return built single-string path
@@ -67,7 +65,7 @@ public class Lwjgl3FilePaths {
      * <p>Build app data path with companyName, appType and appName. All of them can be null.</p>
      * <p><b>Note:</b> Returned path ends without a file separator.</p>
      * 
-     * @see Lwjgl3FilePaths#userDataPath()
+     * @see FilePaths#userDataPath()
      *
      * @param companyName company name
      * @param appType app type
@@ -82,7 +80,7 @@ public class Lwjgl3FilePaths {
      * <p>Build app data path with companyName and appName. All of them can be null.</p>
      * <p><b>Note:</b> Returned path ends without a file separator.</p>
      *
-     * @see Lwjgl3FilePaths#buildAppCachePath(String, String, String)
+     * @see FilePaths#buildAppCachePath(String, String, String)
      *
      * @param companyName company name
      * @param appName app name
@@ -96,7 +94,7 @@ public class Lwjgl3FilePaths {
      * <p>Build app data path with appName. It can be null.</p>
      * <p><b>Note:</b> Returned path ends without a file separator.</p>
      *
-     * @see Lwjgl3FilePaths#buildAppCachePath(String, String, String)
+     * @see FilePaths#buildAppCachePath(String, String, String)
      *
      * @param appName app name
      * @return built app data path
@@ -109,7 +107,7 @@ public class Lwjgl3FilePaths {
      * <p>Build app config path with companyName, appType and appName. All of them can be null.</p>
      * <p><b>Note:</b> Returned path ends without a file separator.</p>
      *
-     * @see Lwjgl3FilePaths#userConfigPath()
+     * @see FilePaths#userConfigPath()
      *
      * @param companyName company name
      * @param appType app type
@@ -124,7 +122,7 @@ public class Lwjgl3FilePaths {
      * <p>Build app config path with companyName and appName. All of them can be null.</p>
      * <p><b>Note:</b> Returned path ends without a file separator.</p>
      *
-     * @see Lwjgl3FilePaths#userConfigPath()
+     * @see FilePaths#userConfigPath()
      *
      * @param companyName company name
      * @param appName app name
@@ -138,7 +136,7 @@ public class Lwjgl3FilePaths {
      * <p>Build app config path with appName. It can be null.</p>
      * <p><b>Note:</b> Returned path ends without a file separator.</p>
      *
-     * @see Lwjgl3FilePaths#buildAppConfigPath(String, String, String)
+     * @see FilePaths#buildAppConfigPath(String, String, String)
      *
      * @param appName app name
      * @return built app config path
@@ -151,7 +149,7 @@ public class Lwjgl3FilePaths {
      * <p>Build app cache path with companyName, appType and appName. All of them can be null.</p>
      * <p><b>Note:</b> Returned path ends without a file separator.</p>
      *
-     * @see Lwjgl3FilePaths#userCachePath()
+     * @see FilePaths#userCachePath()
      *
      * @param companyName company name
      * @param appType app type
@@ -167,7 +165,7 @@ public class Lwjgl3FilePaths {
      * <p>Build app cache path with companyName and appName. All of them can be null.</p>
      * <p><b>Note:</b> Returned path ends without a file separator.</p>
      *
-     * @see Lwjgl3FilePaths#buildAppCachePath(String, String, String)
+     * @see FilePaths#buildAppCachePath(String, String, String)
      *
      * @param companyName company name
      * @param appName app name
@@ -181,7 +179,7 @@ public class Lwjgl3FilePaths {
      * <p>Build app cache path with appName. It can be null.</p>
      * <p><b>Note:</b> Returned path ends without a file separator.</p>
      *
-     * @see Lwjgl3FilePaths#buildAppCachePath(String, String, String)
+     * @see FilePaths#buildAppCachePath(String, String, String)
      *
      * @param appName app name
      * @return built app cache path
@@ -303,7 +301,7 @@ public class Lwjgl3FilePaths {
 
     /**
      * <p>Gets user space application config dir path.</p>
-     * <p><b>Note:</b> On Windows XP and older Windows, it will return the same path of {@link Lwjgl3FilePaths#userDataPath()}.<br>
+     * <p><b>Note:</b> On Windows XP and older Windows, it will return the same path of {@link FilePaths#userDataPath()}.<br>
      * <b>Note:</b> Returned path ends without a file separator.</p>
      * @return user config dir path
      */
@@ -336,7 +334,7 @@ public class Lwjgl3FilePaths {
 
     /**
      * <p>Gets user space application cache dir path.</p>
-     * <p><b>Note:</b> On Windows, it will return the same path of {@link Lwjgl3FilePaths#userConfigPath()}.<br>
+     * <p><b>Note:</b> On Windows, it will return the same path of {@link FilePaths#userConfigPath()}.<br>
      * <b>Note:</b> Returned path ends without a file separator.</p>
      * @return user cache dir path
      */

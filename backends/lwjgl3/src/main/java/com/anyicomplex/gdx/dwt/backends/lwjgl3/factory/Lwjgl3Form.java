@@ -68,6 +68,7 @@ public class Lwjgl3Form extends Form {
         isRootForm = Gdwt.toolkit.rootForm() == null;
         formType = formConfig.formType;
         if (isRootForm) parentForm = null;
+        else if (formType == FormType.Normal) parentForm = Gdwt.toolkit.rootForm();
         else {
             switch (formType) {
                 case Dialog:

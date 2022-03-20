@@ -1,5 +1,6 @@
 package com.anyicomplex.gdx.dwt.backends.lwjgl3;
 
+import com.anyicomplex.gdx.dwt.DefaultWidgets;
 import com.anyicomplex.gdx.dwt.Gdwt;
 import com.anyicomplex.gdx.dwt.Toolkit;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.factory.Lwjgl3Form;
@@ -8,8 +9,8 @@ import com.anyicomplex.gdx.dwt.backends.lwjgl3.jnativehook.SharedLibraryLocator;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.linux.LinuxNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.macosx.MacOSXNatives;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.system.windows.WindowsNatives;
-import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.Lwjgl3FilePaths;
-import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.Lwjgl3TmpFiles;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.FilePaths;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.TmpFiles;
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.SharedLibraryHelper;
 import com.anyicomplex.gdx.dwt.factory.Form;
 import com.anyicomplex.gdx.dwt.factory.FormConfiguration;
@@ -45,26 +46,26 @@ public class Lwjgl3Toolkit implements Toolkit {
     }
 
     static  {
-        if (Lwjgl3TmpFiles.getTmpStorageDir() == null) throw new IllegalStateException("Resource file extraction path is invalid!");
+        if (TmpFiles.getTmpStorageDir() == null) throw new IllegalStateException("Resource file extraction path is invalid!");
         // LWJGL3
-        System.setProperty("org.lwjgl.system.SharedLibraryExtractPath", Lwjgl3FilePaths.build(
-                Lwjgl3TmpFiles.getTmpLibDir().file().getAbsolutePath(),
+        System.setProperty("org.lwjgl.system.SharedLibraryExtractPath", FilePaths.build(
+                TmpFiles.getTmpLibDir().file().getAbsolutePath(),
                 "lwjgl3-3.2.3-build-13"));
         // libGDX
         GdxNativesLoader.disableNativesLoading = true;
         String gdxDirTag = "libgdx-" + com.badlogic.gdx.Version.VERSION;
         FileHandle gdxLib = new Lwjgl3FileHandle(SharedLibraryHelper.mapGdxLibResName("gdx"), Files.FileType.Internal);
-        System.load(Lwjgl3TmpFiles.getTmpLib(gdxLib, gdxDirTag, gdxLib.name(), false).file().getAbsolutePath());
+        System.load(TmpFiles.getTmpLib(gdxLib, gdxDirTag, gdxLib.name(), false).file().getAbsolutePath());
         // jNativeHook
         System.setProperty("jnativehook.lib.locator", SharedLibraryLocator.class.getCanonicalName());
         // Gdwt
         String gdwtDirTag = "libgdwt-" + com.anyicomplex.gdx.dwt.Version.VERSION;
         FileHandle gdwtLib = new Lwjgl3FileHandle(SharedLibraryHelper.mapGdxLibResName("gdwt"), Files.FileType.Internal);
-        System.load(Lwjgl3TmpFiles.getTmpLib(gdwtLib, gdwtDirTag, gdwtLib.name(), false).file().getAbsolutePath());
+        System.load(TmpFiles.getTmpLib(gdwtLib, gdwtDirTag, gdwtLib.name(), false).file().getAbsolutePath());
         if (isLinux) {
             // xdg-utils
-            XDGUtils.setScriptDirPath(Lwjgl3FilePaths.build(
-                    Lwjgl3TmpFiles.getTmpBinDir().file().getAbsolutePath(),
+            XDGUtils.setScriptDirPath(FilePaths.build(
+                    TmpFiles.getTmpBinDir().file().getAbsolutePath(),
                     "xdg-utils-" + XDGUtils.SCRIPT_VERSION));
             LinuxNatives.validXDGUtilsScripts();
         }
@@ -83,6 +84,7 @@ public class Lwjgl3Toolkit implements Toolkit {
         GlobalScreen.addNativeMouseListener(inputHandler);
         GlobalScreen.addNativeKeyListener(inputHandler);
         Gdwt.toolkit = this;
+        Gdwt.widgets = new DefaultWidgets();
         Gdwt.factory = new Lwjgl3Factory();
         rootForm = new Lwjgl3Form(listener, config);
         rootForm.loop();
@@ -95,22 +97,22 @@ public class Lwjgl3Toolkit implements Toolkit {
 
     @Override
     public String prefsDir(String companyName, String appName) {
-        return Lwjgl3FilePaths.buildAppConfigPath(companyName, appName);
+        return FilePaths.buildAppConfigPath(companyName, appName);
     }
 
     @Override
     public String dataDir(String companyName, String appName) {
-        return Lwjgl3FilePaths.buildAppDataPath(companyName, appName);
+        return FilePaths.buildAppDataPath(companyName, appName);
     }
 
     @Override
     public String cacheDir(String companyName, String appName) {
-        return Lwjgl3FilePaths.buildAppCachePath(companyName, appName);
+        return FilePaths.buildAppCachePath(companyName, appName);
     }
 
     @Override
     public String tmpDir() {
-        return Lwjgl3FilePaths.tmpDirPath();
+        return FilePaths.tmpDirPath();
     }
 
     @Override

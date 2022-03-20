@@ -1,7 +1,7 @@
 package com.anyicomplex.gdx.dwt.backends.lwjgl3.system.linux;
 
 import com.anyicomplex.gdx.dwt.backends.lwjgl3.toolkit.Lwjgl3FontHandle;
-import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.Lwjgl3TmpFiles;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.TmpFiles;
 import com.anyicomplex.xdg.utils.*;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3FileHandle;
@@ -33,14 +33,14 @@ public class LinuxNatives {
         FileHandle XDGOpenBin = new Lwjgl3FileHandle(XDGOpen.FILE_NAME, Files.FileType.Internal);
         FileHandle XDGScreenSaverBin = new Lwjgl3FileHandle(XDGScreenSaver.FILE_NAME, Files.FileType.Internal);
         FileHandle XDGSettingsBin = new Lwjgl3FileHandle(XDGSettings.FILE_NAME, Files.FileType.Internal);
-        Lwjgl3TmpFiles.getTmpBin(XDGDesktopIconBin, outputPath, XDGDesktopMenuBin.name(), false);
-        Lwjgl3TmpFiles.getTmpBin(XDGDesktopMenuBin, outputPath, XDGDesktopMenuBin.name(), false);
-        Lwjgl3TmpFiles.getTmpBin(XDGEmailBin, outputPath, XDGEmailBin.name(), false);
-        Lwjgl3TmpFiles.getTmpBin(XDGIconResourceBin, outputPath, XDGIconResourceBin.name(), false);
-        Lwjgl3TmpFiles.getTmpBin(XDGMimeBin, outputPath, XDGMimeBin.name(), false);
-        Lwjgl3TmpFiles.getTmpBin(XDGOpenBin, outputPath, XDGOpenBin.name(), false);
-        Lwjgl3TmpFiles.getTmpBin(XDGScreenSaverBin, outputPath, XDGScreenSaverBin.name(), false);
-        Lwjgl3TmpFiles.getTmpBin(XDGSettingsBin, outputPath, XDGSettingsBin.name(), false);
+        TmpFiles.getTmpBin(XDGDesktopIconBin, outputPath, XDGDesktopMenuBin.name(), false);
+        TmpFiles.getTmpBin(XDGDesktopMenuBin, outputPath, XDGDesktopMenuBin.name(), false);
+        TmpFiles.getTmpBin(XDGEmailBin, outputPath, XDGEmailBin.name(), false);
+        TmpFiles.getTmpBin(XDGIconResourceBin, outputPath, XDGIconResourceBin.name(), false);
+        TmpFiles.getTmpBin(XDGMimeBin, outputPath, XDGMimeBin.name(), false);
+        TmpFiles.getTmpBin(XDGOpenBin, outputPath, XDGOpenBin.name(), false);
+        TmpFiles.getTmpBin(XDGScreenSaverBin, outputPath, XDGScreenSaverBin.name(), false);
+        TmpFiles.getTmpBin(XDGSettingsBin, outputPath, XDGSettingsBin.name(), false);
     }
 
     public static void open(String path) {

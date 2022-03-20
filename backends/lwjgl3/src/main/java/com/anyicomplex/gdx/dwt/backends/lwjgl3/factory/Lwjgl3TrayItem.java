@@ -1,7 +1,7 @@
 package com.anyicomplex.gdx.dwt.backends.lwjgl3.factory;
 
-import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.Lwjgl3FilePaths;
-import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.Lwjgl3TmpFiles;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.FilePaths;
+import com.anyicomplex.gdx.dwt.backends.lwjgl3.utils.TmpFiles;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Files;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
@@ -115,7 +115,7 @@ public class Lwjgl3TrayItem implements Disposable, Disableable {
             case Internal:
             case Classpath:
             default:
-                tmp = Lwjgl3TmpFiles.getTmpImage(icon);
+                tmp = TmpFiles.getTmpImage(icon);
                 filePath = tmp.file().getAbsolutePath();
                 break;
             case Local:
@@ -126,7 +126,7 @@ public class Lwjgl3TrayItem implements Disposable, Disableable {
                 filePath = icon.file().getAbsolutePath();
                 break;
         }
-        filePath = Lwjgl3FilePaths.convertSeparatorsToNativeStyle(filePath);
+        filePath = FilePaths.convertSeparatorsToNativeStyle(filePath);
         byte[] content;
         if (isWindows) content = filePath.getBytes(StandardCharsets.UTF_16LE);
         else content = filePath.getBytes(StandardCharsets.UTF_8);

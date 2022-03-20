@@ -1,10 +1,14 @@
 package com.anyicomplex.gdx.dwt;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Null;
 
 public interface Widgets {
+
+    Texture colorTexture(Color color);
 
     BitmapFont defaultFont();
 

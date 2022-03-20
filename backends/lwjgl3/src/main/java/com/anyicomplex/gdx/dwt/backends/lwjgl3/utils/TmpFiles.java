@@ -14,9 +14,9 @@ import java.util.UUID;
 
 import static com.badlogic.gdx.utils.SharedLibraryLoader.is64Bit;
 
-public class Lwjgl3TmpFiles {
+public class TmpFiles {
 
-    private Lwjgl3TmpFiles(){}
+    private TmpFiles(){}
 
     private static boolean isEmpty(String string) {
         return string == null || string.length() < 1;
@@ -116,7 +116,7 @@ public class Lwjgl3TmpFiles {
     public static final String TMP_FILE_TYPE_BIN = is64Bit ? "bin64" : "bin";
     public static final String TMP_FILE_TYPE_IMAGE = "images";
 
-    public static String randomUUID() {
+    private static String randomUUID() {
         return new UUID(MathUtils.random.nextLong(), MathUtils.random.nextLong()).toString();
     }
 
@@ -127,7 +127,7 @@ public class Lwjgl3TmpFiles {
         if (getTmpStorageDirPathProperty(type) == null) {
             try {
                 String sha512 = ChecksumUtils.sha512(inputFile.read());
-                file = getTmpFileWithTag(type, Lwjgl3FilePaths.build(outputPath,
+                file = getTmpFileWithTag(type, FilePaths.build(outputPath,
                         isEmpty(outputName) ? sha512 + "." + inputFile.extension() : outputName));
                 if (file == null) throw new IllegalStateException("Resource file extraction path is invalid!");
                 result = new Lwjgl3FileHandle(file, Files.FileType.Absolute);
@@ -152,7 +152,7 @@ public class Lwjgl3TmpFiles {
             file = getTmpFileWithLibPath(inputFile.name());
             if (file != null) result = new Lwjgl3FileHandle(file, Files.FileType.Absolute);
         }
-        if (result != null) if (deleteOnExit) result.file().deleteOnExit();
+        if (result != null && deleteOnExit) result.file().deleteOnExit();
         return result;
     }
 

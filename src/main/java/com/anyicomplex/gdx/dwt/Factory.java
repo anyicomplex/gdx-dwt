@@ -19,7 +19,7 @@ public interface Factory {
 
     Form popup(Form parentForm, ApplicationListener listener, FormConfiguration config);
 
-    Form window(Form parentForm, Window window, FormConfiguration config);
+    Form window(Window window, FormConfiguration config);
 
     Form dialog(Form parentForm, Dialog dialog, FormConfiguration config);
 
